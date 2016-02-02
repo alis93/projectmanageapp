@@ -1,0 +1,57 @@
+<!--common html-->
+<div class="root" layout="row" layout-fill >
+    <!--left Side Navbar-->
+    <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-xs')" ng-class="{'opened-nav': nav.openedNav}">
+        <!--user-profile-details-->
+        <md-toolbar class="md-hue-2" flex="none" >
+            <div class="md-toolbar-tools-bottom  inset profile-div">
+                <img flex="initial" class="user-avatar" src="/images/one.png" />
+                <div layout="column" id="user-details">
+                    <div>{{nav.name}}</div>
+                    <div>{{nav.email}}</div>
+                </div>
+            </div>
+        </md-toolbar>
+
+        <md-list >
+            <md-list-item class="nav-item" ng-repeat="item in nav.menuItems">
+                <md-button layout-fill ui-sref="{{item.link}}">
+                    <div layout="row">
+                        <div flex="30" class="nav-item-icon"><md-icon md-font-library="material-icons">{{item.icon}}</md-icon></div>
+                        <div flex="70" class="nav-item-title">{{item.title}}</div>
+                    </div>
+                </md-button>
+            </md-list-item>
+            <md-divider></md-divider>
+            <md-subheader class="inset" id="pinned-projects-header">Pinned Projects</md-subheader>
+            <!--Pinned Projects to be added here in future??? using sref-ui???-->
+
+        </md-list>
+
+    </md-sidenav>
+
+    <!--Main Container-->
+    <div layout="column" class="relative" layout-fill role="main">
+
+        <!--Toolbar on top-->
+        <md-toolbar >
+            <div class="md-toolbar-tools">
+                <md-button ng-click="nav.toggleSidenav('left')" aria-label="Menu">
+                    <md-icon md-font-library="material-icons">menu</md-icon>
+                </md-button>
+                <h3 ng-bind="$state.current.data.pageTitle"></h3>
+                <span flex></span>
+                <md-button ng-click="nav.logout()">logout</md-button>
+                <md-button aria-label="Open Settings">
+                    <md-icon md-font-library="material-icons">more_vert</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <!--main content Container-->
+        <md-content flex layout-margin layout="column" id="content">
+            <ui-view></ui-view>
+        </md-content>
+
+    </div>
+</div>

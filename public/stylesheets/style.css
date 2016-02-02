@@ -1,0 +1,114 @@
+md-content.md-default-theme {
+    background-color: #eee;
+}
+
+md-card {
+    background-color: #fff;
+}
+md-card h2:first-of-type {
+    margin-top: 0;
+}
+
+md-toolbar .md-button.md-default-theme {
+    border-radius: 99%;
+}
+
+h2 {
+    font-weight: 400;
+}
+
+.md-toolbar-tools-bottom {
+    font-size: small;
+}
+.md-toolbar-tools-bottom :last-child {
+    opacity: 0.8;
+}
+
+md-toolbar:not(.md-hue-1),
+.md-fab {
+    fill: #fff;
+}
+
+md-sidenav {
+    fill: #737373;
+}
+
+.md-sidenav-left{
+    width:50%;
+    height: auto;
+}
+
+
+md-sidenav .opened-nav md-toolbar{
+    height:200px;
+}
+
+
+.md-sidenav-left .profile-div{
+    margin: 0 auto;
+    text-align: center;
+}
+
+.md-sidenav-left .profile-div .user-avatar{
+    border-radius: 99%;
+    width: 50%;
+}
+
+.md-sidenav-left .nav-item-title{
+    /*width: 75%;*/
+    text-align: left;
+}
+
+
+.md-sidenav-left .nav-item-icon{
+    /*width: 25%;*/
+}
+
+@media (min-width: 600px) {
+
+    .md-sidenav-left .profile-div .user-avatar{
+        width: 100%;
+        transition: width 0.25s;
+    }
+
+    .md-sidenav-left{
+        transition: width 0.25s;
+        width:75px;
+    }
+
+    .md-sidenav-left #pinned-projects-header, .md-sidenav-left .nav-item-title{
+        opacity: 0;
+        transition: opacity 0.25s;
+    }
+
+    .md-sidenav-left #user-details{
+        display: none;
+        transition: display 0.25s;
+    }
+
+    .md-sidenav-left md-list-item md-icon{
+        padding-left: 10px;
+        transition: padding-left 0.25s;
+    }
+
+    .md-sidenav-left.opened-nav .user-avatar{
+        width: 50%;
+    }
+
+    .md-sidenav-left.opened-nav{
+        width:250px;
+    }
+
+    .md-sidenav-left.opened-nav #pinned-projects-header, .md-sidenav-left.opened-nav .nav-item-title {
+        opacity: 1;
+    }
+
+    .md-sidenav-left.opened-nav #user-details{
+        display: block;
+    }
+
+
+    .md-sidenav-left.opened-nav md-list-item md-icon{
+        padding-left: 0px;
+    }
+}

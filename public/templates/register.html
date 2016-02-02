@@ -1,0 +1,37 @@
+
+<div class="login-div">
+
+    <md-content class="home-title-content">
+        <h1>Project Manager</h1>
+        <h3>Change the way you work!</h3>
+    </md-content>
+    <span layout-padding=""></span>
+    <md-content layout="column" flex="auto" layout-padding class="md-whiteframe-z2  user-form-block">
+
+        <form name="userForm" ng-submit="auth.register()">
+            <md-input-container class="md-icon-float md-block">
+                <md-icon md-font-library="material-icons">person</md-icon>
+                <input  ng-model="auth.user.name"  md-maxlength="30" type="text" placeholder="Name" ng-required="true">
+                <!--<div ng-messages="userForm.name.$error" role="alert">-->
+                <!--<div ng-message="alert" ng-message="required">Name is required.</div>-->
+                <!--<div ng-message="md-maxlength">The name has to be less than 30 characters long.</div>-->
+                <!--</div>-->
+            </md-input-container>
+            <md-input-container class="md-block">
+                <md-icon md-font-library="material-icons">email</md-icon>
+                <input ng-model="auth.user.email" type="email" placeholder="Email" ng-required="true">
+            </md-input-container>
+            <md-input-container class="md-block">
+                <md-icon md-font-library="material-icons">lock</md-icon>
+                <input ng-model="auth.user.password" type="password" placeholder="Password" ng-required="true">
+            </md-input-container>
+            <div layout="flex">
+                <md-button type="submit" class="md-raised md-primary submit-btn">Register</md-button>
+            </div>
+        </form>
+
+
+
+        <a ui-sref="login">Already have an account? login here</a>
+    </md-content>
+</div>
