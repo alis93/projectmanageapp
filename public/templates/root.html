@@ -41,10 +41,19 @@
                 </md-button>
                 <h3 ng-bind="$state.current.data.pageTitle"></h3>
                 <span flex></span>
-                <md-button ng-click="nav.logout()">logout</md-button>
-                <md-button aria-label="Open Settings">
-                    <md-icon md-font-library="material-icons">more_vert</md-icon>
-                </md-button>
+
+                <md-menu>
+                    <md-button aria-label="Open Settings" ng-click="$mdOpenMenu($event)" class="md-icon-button">
+                        <md-icon md-font-library="material-icons">more_vert</md-icon>
+                    </md-button>
+                    <md-menu-content>
+                        <md-menu-item><md-button ng-click="nav.logout()">log out</md-button></md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+                <!--<md-button ng-click="nav.logout()">logout</md-button>-->
+                <!--<md-button aria-label="Open Settings">-->
+                    <!--<md-icon md-font-library="material-icons">more_vert</md-icon>-->
+                <!--</md-button>-->
             </div>
         </md-toolbar>
 

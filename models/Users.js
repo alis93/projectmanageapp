@@ -7,7 +7,7 @@ var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 
 var UserSchema = new mongoose.Schema({
-    name : {type:String,lowercase:true},
+    name : {type:String},
     email: {type:String,lowercase:true,unique:true},
     hash:String,
     salt:String
@@ -32,7 +32,7 @@ UserSchema.methods.generateJWT = function(){
         _id: this._id,
         email: this.email,
         name: this.name,
-        exp: parseInt(exp.getTime() / 1000),
+        exp: parseInt(exp.getTime() / 1000)
     }, 'SECRET');//use environment variable to store 'SECRET'
 
 };
