@@ -10,6 +10,8 @@ var Page      = mongoose.model('Page');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
+module.exports = router;
+
 /* GET home page. */
 router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
@@ -47,62 +49,84 @@ router.post('/login', function(req, res, next){
 });
 
 router.route('/projects')
-    .get(function(req,res,next){
-        Project.find(function(err,projects){
-            if(err) {return next(err);}
-            res.json(projects);
-        });
+    //get all projects belonging to the current user
+    .get(auth,function(req,res,next){
+
+        User.findById(req.payload._id)
+            .exec(function(err,user){
+                if(err) {return next(err);}
+                res.json(user.projects);
+            });
     })
-    .post(function(req,res,next){
+    //add new project, also updating user
+    .post(auth,function(req,res,next){
+
+        var project = new Project(req.body);
+        project.createdBy = req.payload._id;
+
         project.save(function(err,project){
             if(err){return next(err);}
-            res.json(project);
+            User.findByIdAndUpdate(req.payload._id,{ $push:{projects:{title:project.title,_id:project._id}} },{upsert: true,new:true})
+                .exec(function(err,user){
+                    if(err){ return next(err); }
+                    res.json(project);
+            });
         });
     });
+//delete single/multiple projects using one of two methods below either put or delete research which to use
+//.delete ---get an array of project ids in req and delete them? for deleting multiple projects at once from the projects page?
+//.put to get an array of project ids in req and remove from db?
 
 
+//get the current project in the url
 router.param('project_id',function(req,res,next,id){
     Project.findById(id).
     exec(function(err,project){
         if (err) { return next(err); }
         if (!project) { return next(new Error('can\'t find project')); }
-
         req.project = project;
         return next();
     });
 });
 
-
+// get, update or delete a project
 router.route('/projects/:project_id')
-    .get(function(req,res){
+    //get a specific project
+    .get(auth,function(req,res){
         res.json(req.project);
     })
-    .put(function(req,res,next){
-
-        req.project.updateProjectDetails(req.projectDetails,function(err,project){
+    //update project details
+    .put(auth,function(req,res,next){
+        req.project.updateProjectDetails(req.body,function(err,project){
             if(err){return next(err);}
-            res.json(project);
-        });
-
-
-        //Project.findByIdAndUpdate(req.params.project_id,req.body)
-        //    .exec(function(err,project){
-        //        if(err){return next(err);}
-        //        if(!project){return next(new Error('Can\'t find Project'));}
-        //        res.json(project);
-        //    });
-    })
-    .delete(function(req,res,next){
-        Project.findByIdAndRemove(req.params.project_id)
-            .exec(function(err,project){
-                if(err){return next(err);}
-                if(!project){return next(new Error('Can\'t find Project'));}
-                res.json(project);
+            User.findOneAndUpdate({
+                _id:project.createdBy,"projects._id":project._id}
+                ,{'projects.$.title' : project.title}
+                ,{new: true}).exec(function(err,user){
+                    if(err){return next(err);}
+                    res.json(project);
             });
+        });
+    })
+    //delete a specific project
+    .delete(function(req,res,next){
+        req.project.remove(function(err,project){
+            if(err){return next(err);}
+            User.findOneAndUpdate({_id:project.createdBy},
+                {$pull:{projects:{ _id:project._id }} },
+                {new: true})
+                .exec(function(err,user){
+                    if(err){return next(err);}
+                    res.json(project);
+                });
+        });
     });
 
+
+
+//get all the current pages in a project or
+//post a new page
 router.route('/projects/:project_id/pages')
-    .all()
     .post(function(req,res,next){
 
     })
@@ -111,8 +135,10 @@ router.route('/projects/:project_id/pages')
     });
 
 
+//get the current page in the url
+router.param('page_id',function(req,res,next){});
 
-module.exports = router;
+
 
 
 

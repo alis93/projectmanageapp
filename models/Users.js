@@ -10,7 +10,14 @@ var UserSchema = new mongoose.Schema({
     name : {type:String},
     email: {type:String,lowercase:true,unique:true},
     hash:String,
-    salt:String
+    salt:String,
+    projects:[{
+                title:String,
+                _id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Project'
+                }
+             }]
 });
 
 UserSchema.methods.setPassword = function(password){
@@ -34,7 +41,7 @@ UserSchema.methods.generateJWT = function(){
         name: this.name,
         exp: parseInt(exp.getTime() / 1000)
     }, 'SECRET');//use environment variable to store 'SECRET'
-
 };
+
 
 mongoose.model('User',UserSchema);
