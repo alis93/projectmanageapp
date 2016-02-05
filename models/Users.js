@@ -43,5 +43,4 @@ UserSchema.methods.generateJWT = function(){
     }, 'SECRET');//use environment variable to store 'SECRET'
 };
 
-
 mongoose.model('User',UserSchema);

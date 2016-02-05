@@ -17,6 +17,10 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
 
+
+
+/* setting up a user */
+
 //prevent multiple identical emails
 router.post('/register',function(req,res,next){
     if(!req.body.email || !req.body.password || !req.body.name){
@@ -48,11 +52,15 @@ router.post('/login', function(req, res, next){
     })(req, res, next);
 });
 
+
+/* GET all projects belonging to a user */
+/* CREATE a new project for a users */
+
 router.route('/projects')
     //get all projects belonging to the current user
     .get(auth,function(req,res,next){
 
-        User.findById(req.payload._id)
+        User.findById(req.payload._id,'projects')
             .exec(function(err,user){
                 if(err) {return next(err);}
                 res.json(user.projects);
@@ -77,6 +85,10 @@ router.route('/projects')
 //.delete ---get an array of project ids in req and delete them? for deleting multiple projects at once from the projects page?
 //.put to get an array of project ids in req and remove from db?
 
+
+/* GET    a single project */
+/* UPDATE a single project */
+/* DELETE s single project*/
 
 //get the current project in the url
 router.param('project_id',function(req,res,next,id){
@@ -117,72 +129,57 @@ router.route('/projects/:project_id')
                 {new: true})
                 .exec(function(err,user){
                     if(err){return next(err);}
-                    res.json(project);
+                    //delete all pages related to this project.
+                    //simply findandremove pages with a project id matching removed project
+                    Page.remove({project:project._id})
+                        .exec(function(err,pages){
+                            if(err){return next(err);}
+                            //remove all files?? only if they have their own schema
+                            //however we will have to remove them from the filesystem anyway using their paths.
+                            res.json(project);
+                        });
                 });
         });
     });
 
 
 
+/* GET all pages in a project */
+/* POST a new page in a project */
+
 //get all the current pages in a project or
 //post a new page
 router.route('/projects/:project_id/pages')
+    .get(function(req,res){
+        res.json(req.project.pages);
+    })
     .post(function(req,res,next){
 
-    })
-    .get(function(req,res,next){
+        var page = new Page(req.body);
+        page.project = req.project._id;
+        page.createdBy = req.project.createdBy;
 
+        page.save(function(err,page){
+            if(err){return next(err);}
+            req.project.pages.push({title:req.body.title,_id:page._id});
+            req.project.save(function(err){
+                if(err){return next(err);}
+                res.json(page);
+            });
+        });
     });
 
 
+/* GET    a single page in a project */
+/* UPDATE a single page in a project*/
+/* DELETE a single page in a project*/
+
 //get the current page in the url
 router.param('page_id',function(req,res,next){});
+router.route('/projects/:project_id/pages/:page_id')
+    .get(function(req,res,next){
 
+    })
+    .put(function(req,res,next){})
+    .delete(function(req,res,next){});
 
-
-
-
-//router.get('/projects',function(req,res,next){
-//
-//    console.log("/projects");
-//
-//    Project.find(function(err,projects){
-//        if(err) {return next(err);}
-//        res.json(projects);
-//    });
-//});
-
-//router.post('/projects',function(req,res,next){
-//    var project = new Project(req.body);
-//
-//    project.save(function(err,project){
-//        if(err){return next(err);}
-//        res.json(project);
-//
-//    });
-//});
-
-
-//router.param('project',function(req,res,next,id){
-//    console.log("project param");
-//    console.log(id);
-//
-//    var query = Project.findById(id);
-//
-//    query.exec(function(err,project){
-//        if(err){return next(err);}
-//
-//        if(!project){return next(new Error('Can\'t find Project'));}
-//        req.project = project;
-//        return next();
-//    });
-//});
-//
-//router.get('/projects/:project',function(req,res){
-//    console.log("projects/project");
-//    res.json(req.project);
-//});
-//
-//router.put('projects/:project',function(req,res){
-//
-//});

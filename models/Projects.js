@@ -10,7 +10,12 @@ var ProjectSchema = new mongoose.Schema({
     description:{type:String},
     startDate:{type: Date},
     endDate:{type: Date},
-    pages:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Page' }]
+    pages:[{
+        title:String,
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Page' }
+    }]
 //    team:{},
 //    files:{},
 },{timestamps: true}
