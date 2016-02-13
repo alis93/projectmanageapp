@@ -58,3 +58,23 @@
     }
 }
 
+/*add class infront of these md-card things*/
+
+.new-project-btn {
+    position: fixed;
+    top: 90%;
+    left: 90%;
+}
+
+.project-card-grid {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.project-card-grid md-card-header {
+    height: 50px;
+}
+
+.project-card-grid md-card-header img {
+    width: 50px;
+}

@@ -11,7 +11,7 @@
         <div layout="column" layout-padding layout-gt-xs="row" layout-align="space-around center">
 
             <div layout="column" flex-gt-xs="30" class="project-icon-div" layout-align="center center">
-                <img ngf-thumbnail="projectCtrl.file || '/images/default_folder.png'" layout-fill layout-padding
+                <img ngf-thumbnail="projectCtrl.file || '/images/default_folder.svg'" layout-fill layout-padding
                      layout-margin class="project-icon-preview">
                 <div class="button" ngf-select ng-model="projectCtrl.file" name="file" ngf-pattern="'image/*'"
                      ngf-accept="'image/*'" ngf-max-size="20MB" ngf-min-height="100"
@@ -26,7 +26,7 @@
             <div layout="column" flex-gt-xs="50" layout-padding layout-margin layout-fill>
                 <md-input-container class="md-block project-title-container">
                     <label class="md-caption">Title</label>
-                    <input type="text"
+                    <input type="text" md-maxlength="25"
                            placeholder="Give your project a title" ng-required="true"
                            ng-model="projectCtrl.project.title"/>
                 </md-input-container>

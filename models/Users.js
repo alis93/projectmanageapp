@@ -12,7 +12,7 @@ var UserSchema = new mongoose.Schema({
     hash:String,
     salt:String,
     projects:[{
-                title:String,
+        //title:String,
                 _id: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'Project'

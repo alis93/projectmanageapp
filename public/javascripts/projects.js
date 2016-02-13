@@ -9,8 +9,8 @@ angular.module("projectManager")
             return $http.get('/projects', {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
             }).success(function (data) {
-                console.log(data);
                 angular.copy(data, obj.projects);
+                //obj.projects[0].archived = true;
             });
         };
 
@@ -40,18 +40,21 @@ angular.module("projectManager")
 
         return obj;
     }])
-    .controller('ProjectController', ['projects', '$mdDialog', function (projects, $mdDialog) {
+
+
+
+    ////split into new project form controller and projects controller
+    .controller('ProjectController', ['projects', '$mdDialog', '$filter', function (projects, $mdDialog, $filter) {
         var self = this;
 
         self.projects = projects.projects;
-        self.minDate = new Date();
-        self.file = ''; //'/images/one.png'; //change this to default image?? or leave blank default?
-        self.project = {
-            title: '',
-            description: '',
-            endDate: '',
-            moreInfo: []
-        };
+
+        self.projects.map(function (project) {
+            //project.description = $filter('limitTo')(project.description , 50);
+            project.endDate = $filter('date')(project.endDate, 'dd/MM/yyyy');
+
+        });
+
 
         self.confirmDelete = function (ev, project, index) {
             // Appending dialog to document.body to cover sidenav in docs app
@@ -73,6 +76,16 @@ angular.module("projectManager")
             });
         };
 
+
+        self.minDate = new Date();
+        self.file = '';
+        self.project = {
+            title: '',
+            description: '',
+            endDate: '',
+            moreInfo: []
+        };
+
         self.createProject = function () {
             if (!self.project.title) {
                 return;
@@ -84,8 +97,6 @@ angular.module("projectManager")
                 }, function (resp) {
                     console.log('Error status: ' + resp.status);
                 });
-
-
             self.project = {title: '', description: '', endDate: '', moreInfo: []};
         };
 

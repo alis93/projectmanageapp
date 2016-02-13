@@ -6,10 +6,9 @@ var mongoose = require('mongoose');
 
 var ProjectSchema = new mongoose.Schema({
     createdBy:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        projectIcon: {type: String, default: 'default_folder.png'},
+        projectIcon: {type: String, default: '/images/default_folder.svg'},
     title:{type:String},
     description:{type:String},
-        //startDate:{type: Date}, should i get rid of this?
     endDate:{type: Date},
         moreInfo: [{
             label: {type: String},
@@ -22,7 +21,6 @@ var ProjectSchema = new mongoose.Schema({
             ref: 'Page' }
     }],
         archived: {type: Boolean, default: false}
-//projectIcon        //able to set an icon for the project. allows customisability and used for when project is pinned
 //    difficultyTags[{}], //used for tags when predicting how long will take to complete
 //    team:{},           //other users on the project
 //    files:{},          //files in this project---this will hold a reference to the file path

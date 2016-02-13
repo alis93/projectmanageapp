@@ -41,7 +41,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="13">
+          <list size="18">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -55,6 +55,11 @@
             <item index="10" class="java.lang.String" itemvalue="md-buætton" />
             <item index="11" class="java.lang.String" itemvalue="md-menu-content" />
             <item index="12" class="java.lang.String" itemvalue="md-title" />
+            <item index="13" class="java.lang.String" itemvalue="md-card-content" />
+            <item index="14" class="java.lang.String" itemvalue="md-card-title" />
+            <item index="15" class="java.lang.String" itemvalue="md-card-actions" />
+            <item index="16" class="java.lang.String" itemvalue="md-card-title-text" />
+            <item index="17" class="java.lang.String" itemvalue="md-card-header" />
           </list>
         </value>
       </option>

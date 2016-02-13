@@ -65,13 +65,14 @@ router.post('/login', function(req, res, next){
 router.route('/projects')
     //get all projects belonging to the current user
     .get(auth,function(req,res,next){
-        console.log('projects.get');
-        console.log(req.payload);
-
         User.findById(req.payload._id,'projects')
+            .populate('projects._id', 'createdAt projectIcon title endDate archived')
             .exec(function(err,user){
                 if(err) {return next(err);}
-                res.json(user.projects);
+                var projects = user.projects.map(function (project) {
+                    return project._id;
+                });
+                res.json(projects);
             });
     })
     //add new project, also updating user
@@ -80,15 +81,16 @@ router.route('/projects')
         var project = new Project(req.body);
         project.createdBy = req.payload._id;
         if (req.file) {
-            project.projectIcon = req.file.filename;
+            project.projectIcon = '/images/' + req.file.filename;
         }
 
         project.save(function(err,project){
             if(err){return next(err);}
-            User.findByIdAndUpdate(req.payload._id,{ $push:{projects:{title:project.title,_id:project._id}} },{upsert: true,new:true})
+            User.findByIdAndUpdate(req.payload._id, {$push: {projects: {_id: project._id}}}, {upsert: true, new: true})
                 .exec(function (err) {
                     if(err){ return next(err); }
-                    res.json({project: req.body, file: req.file.filename});
+                    var file = req.file ? req.file.filename : '';
+                    res.json({project: req.body, file: file});
             });
         });
     });
@@ -122,13 +124,14 @@ router.route('/projects/:project_id')
     .put(auth,function(req,res,next){
         req.project.updateProjectDetails(req.body,function(err,project){
             if(err){return next(err);}
-            User.findOneAndUpdate({
-                _id:project.createdBy,"projects._id":project._id}
-                ,{'projects.$.title' : project.title}
-                , {new: true}).exec(function (err) {
-                    if(err){return next(err);}
-                    res.json(project);
-            });
+            res.json(project);
+            //User.findOneAndUpdate({
+            //    _id:project.createdBy,"projects._id":project._id}
+            //    ,{'projects.$.title' : project.title}
+            //    , {new: true}).exec(function (err) {
+            //        if(err){return next(err);}
+            //        res.json(project);
+            //});
         });
     })
     //delete a specific project
@@ -152,8 +155,6 @@ router.route('/projects/:project_id')
                 });
         });
     });
-
-
 
 /* GET all pages in a project */
 /* POST a new page in a project */
