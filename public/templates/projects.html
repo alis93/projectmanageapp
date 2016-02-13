@@ -1,0 +1,23 @@
+<md-list>
+    <md-list-item layout="row" ng-repeat="project in projectCtrl.projects" class="md-whiteframe-z2 project-item"
+                  md-ink-ripple>
+        <md-title layout-padding="">{{project.title}}</md-title>
+        <span flex=""></span>
+        <div layout="row" layout-align="end" class="project-item-options">
+            <md-button class="md-icon-button">
+                <md-icon md-font-library="material-icons">bookmark</md-icon>
+            </md-button>
+            <md-button class="md-icon-button">
+                <md-icon md-font-library="material-icons">done</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="projectCtrl.confirmDelete($event,project,$index)">
+                <md-icon md-font-library="material-icons">delete</md-icon>
+            </md-button>
+        </div>
+    </md-list-item>
+</md-list>
+
+
+<md-button ui-sref="newProject" class="md-fab  md-fab-bottom-right" aria-label="Add Project">
+    <md-icon md-font-library="material-icons">add</md-icon>
+</md-button>

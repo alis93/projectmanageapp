@@ -2,6 +2,16 @@ md-content.md-default-theme {
     background-color: #eee;
 }
 
+#content {
+    background-color: #eee;
+}
+
+md-content md-list-item {
+    /*margin: 8px auto !important;*/
+    background: #fff;
+}
+
+
 md-card {
     background-color: #fff;
 }
@@ -36,6 +46,7 @@ md-sidenav {
 .md-sidenav-left{
     width:50%;
     height: auto;
+    overflow-x: hidden;
 }
 
 
@@ -109,6 +120,6 @@ md-sidenav .opened-nav md-toolbar{
 
 
     .md-sidenav-left.opened-nav md-list-item md-icon{
-        padding-left: 0px;
+        padding-left: 0;
     }
 }

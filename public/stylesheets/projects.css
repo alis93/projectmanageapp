@@ -1,0 +1,60 @@
+
+.project-item {
+    margin: 0 auto;
+}
+
+.project-form-header {
+    text-align: center;
+}
+
+.project-form-div {
+    background-color: #fff;
+    margin: 0 auto;
+}
+
+.project-icon-div {
+}
+
+.project-icon-preview {
+    max-width: 150px;
+    max-height: 150px;
+}
+
+.project-title-container {
+    /*width:80%;*/
+}
+
+.date-input-container {
+
+}
+
+.add-more-info-btn {
+}
+
+.ta-editor {
+    min-height: 300px !important;
+    height: auto;
+    overflow: auto;
+    font-family: inherit;
+    font-size: 100%;
+}
+
+@media (min-width: 960px) {
+
+    .project-item {
+        width: 80%;
+    }
+
+    .project-form-div {
+        width: 90%;
+    }
+
+}
+
+@media (min-width: 1280px) {
+
+    .project-form-div {
+        width: 60%;
+    }
+}
+

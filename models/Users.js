@@ -16,9 +16,17 @@ var UserSchema = new mongoose.Schema({
                 _id: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'Project'
-                }
+                },
+        pinned: {type: Boolean, default: false}
              }]
 });
+
+UserSchema.methods.PinProject = function (projectId, cb) {
+    ////or pass in project and set true and call save and then whatever
+    //var project = some function;
+    //project.pinned = true;
+    //this.save(cb);
+};
 
 UserSchema.methods.setPassword = function(password){
     this.salt = crypto.randomBytes(16).toString('hex');

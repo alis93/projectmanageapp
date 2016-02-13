@@ -1,6 +1,12 @@
 var express   = require('express');
 var router    = express.Router();
 
+var multer = require('multer');
+var upload = multer({
+    dest: 'public/images',
+    limits: {fileSize: 5000000}
+});
+
 var jwt       = require('express-jwt');
 var passport  = require('passport');
 var mongoose  = require('mongoose');
@@ -59,6 +65,8 @@ router.post('/login', function(req, res, next){
 router.route('/projects')
     //get all projects belonging to the current user
     .get(auth,function(req,res,next){
+        console.log('projects.get');
+        console.log(req.payload);
 
         User.findById(req.payload._id,'projects')
             .exec(function(err,user){
@@ -67,17 +75,20 @@ router.route('/projects')
             });
     })
     //add new project, also updating user
-    .post(auth,function(req,res,next){
+    .post(auth, upload.single('file'), function (req, res, next) {
 
         var project = new Project(req.body);
         project.createdBy = req.payload._id;
+        if (req.file) {
+            project.projectIcon = req.file.filename;
+        }
 
         project.save(function(err,project){
             if(err){return next(err);}
             User.findByIdAndUpdate(req.payload._id,{ $push:{projects:{title:project.title,_id:project._id}} },{upsert: true,new:true})
-                .exec(function(err,user){
+                .exec(function (err) {
                     if(err){ return next(err); }
-                    res.json(project);
+                    res.json({project: req.body, file: req.file.filename});
             });
         });
     });
@@ -114,7 +125,7 @@ router.route('/projects/:project_id')
             User.findOneAndUpdate({
                 _id:project.createdBy,"projects._id":project._id}
                 ,{'projects.$.title' : project.title}
-                ,{new: true}).exec(function(err,user){
+                , {new: true}).exec(function (err) {
                     if(err){return next(err);}
                     res.json(project);
             });
@@ -127,12 +138,12 @@ router.route('/projects/:project_id')
             User.findOneAndUpdate({_id:project.createdBy},
                 {$pull:{projects:{ _id:project._id }} },
                 {new: true})
-                .exec(function(err,user){
+                .exec(function (err) {
                     if(err){return next(err);}
                     //delete all pages related to this project.
                     //simply findandremove pages with a project id matching removed project
                     Page.remove({project:project._id})
-                        .exec(function(err,pages){
+                        .exec(function (err) {
                             if(err){return next(err);}
                             //remove all files?? only if they have their own schema
                             //however we will have to remove them from the filesystem anyway using their paths.
@@ -175,11 +186,30 @@ router.route('/projects/:project_id/pages')
 /* DELETE a single page in a project*/
 
 //get the current page in the url
-router.param('page_id',function(req,res,next){});
+router.param('page_id', function (req, res, next) {
+    //Page.findById(id).
+    //exec(function(err,page){
+    //    if (err) { return next(err); }
+    //    if (!page) { return next(new Error('can\'t find page')); }
+    //    req.page = page;
+    //    return next();
+    //});
+});
 router.route('/projects/:project_id/pages/:page_id')
-    .get(function(req,res,next){
-
+    .get(function (req, res) {
+        res.json(req.page);
     })
-    .put(function(req,res,next){})
-    .delete(function(req,res,next){});
+    .put(function (req, res) {
+        res.json('coming soon');
+    })
+    .delete(function (req, res, next) {
+        //req.page.remove(function(err,page){
+        //    if(err){return next(err);}
+        //    req.project.pages.pull({_id:page._id});
+        //    req.project.save(function(err){
+        //        if(err){return next(err);}
+        //        res.json(page);
+        //    });
+        //});
+    });
 

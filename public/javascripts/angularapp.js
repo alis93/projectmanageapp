@@ -1,5 +1,4 @@
-angular.module("projectManager", ['ui.router','ngMaterial','ngMessages'])
-
+angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'textAngular', 'ngFileUpload'])
     .config([
         '$stateProvider',
         '$urlRouterProvider',
@@ -7,8 +6,7 @@ angular.module("projectManager", ['ui.router','ngMaterial','ngMessages'])
             $stateProvider
                 .state('home',{
                     url: '/home',
-                    templateUrl: 'templates/home.html',
-                    controller:'MainCtrl as mainCtrl'
+                    templateUrl: 'templates/home.html'
                 })
                 .state('login', {
                     url: '/login',
@@ -39,16 +37,30 @@ angular.module("projectManager", ['ui.router','ngMaterial','ngMessages'])
                     url: '/updates',
                     templateUrl: 'templates/home.html',
                     data:{pageTitle: 'Updates'},
-                    controller:'MainCtrl as mainCtrl',
+
                     parent: 'root'
                 })
                 .state('projects',{
                     url:'/projects',
-                    templateUrl:'templates/home.html',
+                    templateUrl: 'templates/projects.html',
                     data:{pageTitle: 'projects'},
-                    controller:'MainCtrl as mainCtrl',
-                    parent: 'root'
-                });
+                    controller: 'ProjectController as projectCtrl',
+                    parent: 'root',
+                    resolve: {
+                        projectPromise: ['projects', function (projects) {
+                            return projects.getAllProjects();
+                        }]
+                    }
+                })
+                .state('newProject', {
+                    url: '/new-project',
+                    templateUrl: 'templates/newProject.html',
+                    data: {pageTitle: 'Create a new project'},
+                    parent: 'root',
+                    controller: 'ProjectController as projectCtrl'
+                })
+
+            ;
 
             $urlRouterProvider.otherwise('login');
         }
@@ -57,82 +69,4 @@ angular.module("projectManager", ['ui.router','ngMaterial','ngMessages'])
         function ($rootScope, $state, $stateParams) {
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
-    }])
-
-    .factory('auth', ['$http', '$window', function($http, $window){
-        var auth = {};
-        var tokenName = 'project-management-token';
-
-        auth.saveToken = function (token){
-            $window.localStorage[tokenName] = token;
-        };
-
-        auth.getToken = function(){
-            return $window.localStorage[tokenName];
-        };
-
-        auth.isLoggedIn = function(){
-            var token = auth.getToken();
-
-            if(token){
-                var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-                return payload.exp > Date.now() / 1000;
-            } else {
-                return false;
-            }
-        };
-
-        auth.currentUser = function(){
-            if(auth.isLoggedIn()){
-                var token = auth.getToken();
-                var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-                return {email:payload.email,name:payload.name};
-            }
-        };
-
-        auth.register = function(user){
-            return $http.post('/register', user).success(function(data){
-                auth.saveToken(data.token);
-            });
-        };
-
-        auth.logIn = function(user){
-            console.log("user "+ user)
-            return $http.post('/login', user).success(function(data){
-                auth.saveToken(data.token);
-            });
-        };
-
-        auth.logOut = function(){
-            $window.localStorage.removeItem(tokenName);
-        };
-
-        return auth;
-    }])
-
-    .controller('AuthCtrl', [
-        '$state',
-        'auth',
-        function($state, auth){
-            var self = this;
-            self.user = {};
-            self.register = function(){
-                auth.register(self.user).error(function(error){
-                    self.error = error;
-                }).then(function(){
-                    $state.go('updates');
-                });
-            };
-
-            self.logIn = function(){
-                console.log(self.user);
-                auth.logIn(self.user).error(function(error){
-                    self.error = error;
-                }).then(function(){
-                    $state.go('updates');
-                });
-            };
-
         }]);

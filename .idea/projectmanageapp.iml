@@ -10,5 +10,11 @@
     <orderEntry type="library" name="angular-aria" level="application" />
     <orderEntry type="library" name="angular-messages" level="application" />
     <orderEntry type="library" name="angular-material" level="application" />
+    <orderEntry type="library" name="textAngular" level="application" />
+    <orderEntry type="library" name="textAngular-sanitize" level="application" />
+    <orderEntry type="library" name="textAngular-rangy" level="application" />
+    <orderEntry type="library" name="jquery" level="application" />
+    <orderEntry type="library" name="ng-flow-standalone" level="application" />
+    <orderEntry type="library" name="ng-file-upload" level="application" />
   </component>
 </module>
