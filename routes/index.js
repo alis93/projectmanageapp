@@ -66,7 +66,7 @@ router.route('/projects')
     //get all projects belonging to the current user
     .get(auth,function(req,res,next){
         User.findById(req.payload._id,'projects')
-            .populate('projects._id', 'createdAt projectIcon title endDate archived')
+            .populate('projects._id', '_id createdAt projectIcon title endDate archived')
             .exec(function(err,user){
                 if(err) {return next(err);}
                 var projects = user.projects.map(function (project) {
@@ -77,6 +77,7 @@ router.route('/projects')
     })
     //add new project, also updating user
     .post(auth, upload.single('file'), function (req, res, next) {
+        console.log(req.body);
 
         var project = new Project(req.body);
         project.createdBy = req.payload._id;
@@ -85,12 +86,13 @@ router.route('/projects')
         }
 
         project.save(function(err,project){
-            if(err){return next(err);}
+            if (err) {
+                return next(err);
+            }
             User.findByIdAndUpdate(req.payload._id, {$push: {projects: {_id: project._id}}}, {upsert: true, new: true})
                 .exec(function (err) {
                     if(err){ return next(err); }
-                    var file = req.file ? req.file.filename : '';
-                    res.json({project: req.body, file: file});
+                    res.json({project: project});
             });
         });
     });
@@ -125,13 +127,6 @@ router.route('/projects/:project_id')
         req.project.updateProjectDetails(req.body,function(err,project){
             if(err){return next(err);}
             res.json(project);
-            //User.findOneAndUpdate({
-            //    _id:project.createdBy,"projects._id":project._id}
-            //    ,{'projects.$.title' : project.title}
-            //    , {new: true}).exec(function (err) {
-            //        if(err){return next(err);}
-            //        res.json(project);
-            //});
         });
     })
     //delete a specific project

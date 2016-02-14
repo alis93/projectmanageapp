@@ -31,13 +31,17 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                 .state('root', {
                     templateUrl: 'templates/root.html',
                     controller:'NavCtrl as nav',
-                    abstract: true
+                    abstract: true,
+                    onEnter: ['$state', 'auth', function ($state, auth) {
+                        if (!auth.isLoggedIn()) {
+                            $state.go('login');
+                        }
+                    }]
                 })
                 .state('updates',{
                     url: '/updates',
                     templateUrl: 'templates/home.html',
                     data:{pageTitle: 'Updates'},
-
                     parent: 'root'
                 })
                 .state('projects',{
@@ -57,7 +61,7 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     templateUrl: 'templates/newProject.html',
                     data: {pageTitle: 'Create a new project'},
                     parent: 'root',
-                    controller: 'ProjectController as projectCtrl'
+                    controller: 'NewProjectController as projectCtrl'
                 })
 
             ;

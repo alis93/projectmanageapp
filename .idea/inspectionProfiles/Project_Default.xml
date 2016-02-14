@@ -4,7 +4,7 @@
     <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="28">
+          <list size="32">
             <item index="0" class="java.lang.String" itemvalue="ng-repeat" />
             <item index="1" class="java.lang.String" itemvalue="ng-click" />
             <item index="2" class="java.lang.String" itemvalue="ng-show" />
@@ -33,6 +33,10 @@
             <item index="25" class="java.lang.String" itemvalue="ng-bind" />
             <item index="26" class="java.lang.String" itemvalue="ng-required" />
             <item index="27" class="java.lang.String" itemvalue="type" />
+            <item index="28" class="java.lang.String" itemvalue="md-cols-xs" />
+            <item index="29" class="java.lang.String" itemvalue="md-cols-sm" />
+            <item index="30" class="java.lang.String" itemvalue="md-cols-md" />
+            <item index="31" class="java.lang.String" itemvalue="md-cols-gt-md" />
           </list>
         </value>
       </option>
@@ -41,7 +45,7 @@
     <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myValues">
         <value>
-          <list size="18">
+          <list size="19">
             <item index="0" class="java.lang.String" itemvalue="nobr" />
             <item index="1" class="java.lang.String" itemvalue="noembed" />
             <item index="2" class="java.lang.String" itemvalue="comment" />
@@ -60,6 +64,7 @@
             <item index="15" class="java.lang.String" itemvalue="md-card-actions" />
             <item index="16" class="java.lang.String" itemvalue="md-card-title-text" />
             <item index="17" class="java.lang.String" itemvalue="md-card-header" />
+            <item index="18" class="java.lang.String" itemvalue="md-card-avatar" />
           </list>
         </value>
       </option>

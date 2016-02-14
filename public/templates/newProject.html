@@ -60,18 +60,19 @@
         </div>
 
         <md-input-container layout="row" layout-align="center">
-            <md-button ng-click="projectCtrl.addMoreInfo()" class="add-more-info-btn md-raised">Add More Information
+            <md-button ng-click="projectCtrl.addMoreInfo" class="add-more-info-btn md-raised">Add More Information
             </md-button>
         </md-input-container>
 
         <div layout="row" layout-align="end" layout-padding>
             <md-input-container layout="centre">
-                <md-button class="md-raised md-primary submit-btn" type="submit">create</md-button>
+                <md-button ui-sref="projects" class="md-raised md-warn md-hue-2 submit-btn">cancel</md-button>
             </md-input-container>
 
             <md-input-container layout="centre">
-                <md-button ui-sref="projects" class="md-raised md-warn md-hue-2 submit-btn">cancel</md-button>
+                <md-button class="md-raised md-primary submit-btn" type="submit">create</md-button>
             </md-input-container>
+
         </div>
     </form>
 
