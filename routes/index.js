@@ -1,9 +1,19 @@
 var express   = require('express');
+var mime = require('mime');
 var router    = express.Router();
-
 var multer = require('multer');
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/images')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + "." + mime.extension(file.mimetype));
+    }
+});
+
 var upload = multer({
-    dest: 'public/images',
+    storage: storage,
     limits: {fileSize: 5000000}
 });
 
@@ -13,6 +23,7 @@ var mongoose  = require('mongoose');
 var User      = mongoose.model('User');
 var Project   = mongoose.model('Project');
 var Page      = mongoose.model('Page');
+var Comment = mongoose.model('Comment');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
@@ -107,13 +118,19 @@ router.route('/projects')
 
 //get the current project in the url
 router.param('project_id',function(req,res,next,id){
-    Project.findById(id).
-    exec(function(err,project){
-        if (err) { return next(err); }
-        if (!project) { return next(new Error('can\'t find project')); }
-        req.project = project;
-        return next();
-    });
+    Project.findById(id)
+        .populate({path: 'pages'})
+        .populate({path: 'pages', populate: {path: 'comments', model: 'Comment'}})
+        .exec(function (err, project) {
+            if (err) {
+                return next(err);
+            }
+            if (!project) {
+                return next(new Error('can\'t find project'));
+            }
+            req.project = project;
+            return next();
+        });
 });
 
 // get, update or delete a project
@@ -123,8 +140,13 @@ router.route('/projects/:project_id')
         res.json(req.project);
     })
     //update project details
-    .put(auth,function(req,res,next){
-        req.project.updateProjectDetails(req.body,function(err,project){
+    .put(auth, upload.single('file'), function (req, res, next) {
+        console.log(req.body);
+        var projectDetails = req.body;
+        if (req.file) {
+            projectDetails.projectIcon = '/images/' + req.file.filename;
+        }
+        req.project.updateProjectDetails(projectDetails, function (err, project) {
             if(err){return next(err);}
             res.json(project);
         });
@@ -151,6 +173,49 @@ router.route('/projects/:project_id')
         });
     });
 
+//archive project
+router.put('/projects/:project_id/archive', auth, function (req, res) {
+    req.project.setProjectArchived(req.body.isArchived, function (err, project) {
+        if (err) {
+            return next(err);
+        }
+        if (!req.body.isArchived) {
+            User.findById(req.payload._id)
+                .exec(function (err, user) {
+                    if (err) {
+                        return next(err);
+                    }
+                    user.setPinnedProject(req.project._id, false, function (err) {
+                        if (err) {
+                            return next(err);
+                        }
+                    });
+                });
+        }
+        var respStr = 'The project is now';
+        respStr = respStr + (project.archived ? 'Archived' : 'Active');
+        res.json(respStr);
+    });
+});
+
+//bookmark project
+router.put('/projects/:project_id/bookmark', auth, function (req, res) {
+    User.findById(req.payload._id)
+        .exec(function (err, user) {
+            if (err) {
+                return next(err);
+            }
+            user.setPinnedProject(req.project._id, req.body.isPinned, function (err) {
+                if (err) {
+                    return next(err);
+                }
+                console.log('a project is now pinneed: ' + req.body.isPinned);
+                res.json('bookmark changed successfully!');
+            })
+        });
+});
+
+
 /* GET all pages in a project */
 /* POST a new page in a project */
 
@@ -165,47 +230,136 @@ router.route('/projects/:project_id/pages')
         var page = new Page(req.body);
         page.project = req.project._id;
         page.createdBy = req.project.createdBy;
-
         page.save(function(err,page){
             if(err){return next(err);}
-            req.project.pages.push({title:req.body.title,_id:page._id});
+            //change this to with id key. like comments in thinkster
+            req.project.pages.push({_id: page._id});
+
             req.project.save(function(err){
                 if(err){return next(err);}
+                console.log('page', page);
                 res.json(page);
             });
         });
     });
 
-
 /* GET    a single page in a project */
 /* UPDATE a single page in a project*/
 /* DELETE a single page in a project*/
 
-//get the current page in the url
-router.param('page_id', function (req, res, next) {
-    //Page.findById(id).
-    //exec(function(err,page){
-    //    if (err) { return next(err); }
-    //    if (!page) { return next(new Error('can\'t find page')); }
-    //    req.page = page;
-    //    return next();
-    //});
+//GET the current page in the url
+router.param('page_id', function (req, res, next, id) {
+    Page.findById(id).populate('comments').exec(function (err, page) {
+        if (err) {
+            return next(err);
+        }
+        if (!page) {
+            return next(new Error('can\'t find page'));
+        }
+        req.page = page;
+        return next();
+    });
 });
 router.route('/projects/:project_id/pages/:page_id')
     .get(function (req, res) {
         res.json(req.page);
     })
-    .put(function (req, res) {
-        res.json('coming soon');
-    })
     .delete(function (req, res, next) {
-        //req.page.remove(function(err,page){
-        //    if(err){return next(err);}
-        //    req.project.pages.pull({_id:page._id});
-        //    req.project.save(function(err){
-        //        if(err){return next(err);}
-        //        res.json(page);
-        //    });
-        //});
+        req.page.remove(function (err, page) {
+            if (err) {
+                return next(err);
+            }
+            req.project.pages.pull(page);
+            req.project.save(function (err) {
+                if (err) {
+                    return next(err);
+                }
+                res.json(page);
+            });
+        });
+    })
+    .put(function (req, res) {
+        req.page.title = req.body.title;
+        req.page.description = req.body.description;
+        req.page.assignedTo = req.body.assignedTo;
+        req.page.startDate = req.body.startDate;
+        req.page.endDate = req.body.endDate;
+        req.page.reminderDate = req.body.reminderDate;
+
+        req.page.save(function (err, page) {
+            if (err) {
+                return next(err);
+            }
+            res.json(page);
+        });
     });
 
+router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req, res) {
+    req.page.completed = req.body.isComplete;
+    req.page.save(function (err, page) {
+        if (err) {
+            return next();
+        }
+        res.json(page);
+    });
+});
+
+
+/* Post a comment to a page*/
+router.post('/projects/:project_id/pages/:page_id/comments', auth, function (req, res, next) {
+    var newComment = new Comment(req.body);
+    newComment.author = req.payload.name;
+    newComment.page = req.page._id;
+
+    newComment.save(function (err, comment) {
+        if (err) {
+            return next(err);
+        }
+
+        req.page.comments.push(comment);
+        req.page.save(function (err) {
+            if (err) {
+                return next(err);
+            }
+            res.json(comment);
+        });
+    });
+});
+
+
+/*GET all files*/
+//gets all files when getting a project
+/*POST a new file*/
+router.post('/projects/:project_id/files', auth, upload.single('file'), function (req, res) {
+
+    console.log(req.file);
+
+    var file = {
+        fileId: req.file.filename,
+        filename: req.file.originalname,
+        path: req.file.path,
+        uploadedBy: req.payload._id,
+        uploadDate: new Date()
+    };
+    req.project.files.push(file);
+    req.project.save(function (err) {
+        if (err) {
+            return next(err);
+        }
+        console.log(file);
+        res.json(file);
+    });
+});
+
+/*GET single file*/
+//can we just use the filename in front end like image?
+/*DELETE single file*/
+router.delete('/projects/:project_id/files/:filename', auth, function () {
+    //delete from array in project schema
+    req.project.removeFile(req.params.filename, function (err) {
+        if (err) {
+            return next(err);
+        }
+        //fs.unlink delete from folder
+    });
+});

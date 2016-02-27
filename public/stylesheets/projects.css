@@ -31,7 +31,7 @@
 .add-more-info-btn {
 }
 
-.ta-editor {
+.project-description .ta-editor {
     min-height: 300px !important;
     height: auto;
     overflow: auto;
@@ -58,12 +58,10 @@
     }
 }
 
-/*add class infront of these md-card things*/
-
-.new-project-btn {
+.new-btn {
     position: fixed;
     top: 90%;
-    left: 90%;
+    left: 93%;
 }
 
 .project-card-grid {
@@ -78,3 +76,50 @@
 .project-card-grid md-card-header img {
     width: 50px;
 }
+
+.file-card-grid {
+    margin: 0 auto;
+}
+
+.update-info-btn-div {
+    position: relative;
+    left: -100%;
+}
+
+.page-form-div {
+    background-color: #fff;
+    margin: 0 auto;
+}
+
+.file-form-div {
+    background-color: #fff;
+    margin: 0 auto;
+}
+
+.page-list {
+    height: 900px;
+    overflow-y: scroll;
+}
+
+.page-description .ta-editor {
+    min-height: 500px !important;
+    height: auto;
+    overflow: auto;
+    font-family: inherit;
+    font-size: 100%;
+}
+
+.comment-form .comment-text-input {
+    width: 100%;
+}
+
+/*.page-view{*/
+/*display: none;*/
+/*}*/
+
+/*@media (min-width: 1280px) {*/
+
+/*.page-view{*/
+/*display: inherit;*/
+/*}*/
+/*}*/

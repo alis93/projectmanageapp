@@ -12,20 +12,22 @@ var UserSchema = new mongoose.Schema({
     hash:String,
     salt:String,
     projects:[{
-        //title:String,
-                _id: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Project'
-                },
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Project'
+        },
         pinned: {type: Boolean, default: false}
-             }]
+    }]
 });
 
-UserSchema.methods.PinProject = function (projectId, cb) {
-    ////or pass in project and set true and call save and then whatever
-    //var project = some function;
-    //project.pinned = true;
-    //this.save(cb);
+UserSchema.methods.setPinnedProject = function (projectId, isPinned, cb) {
+    for (var i = 0, len = this.projects.length; i < len; i++) {
+        if (this.projects[i]._id === projectId) {
+            this.projects[i].pinned = isPinned;
+            break;
+        }
+    }
+    this.save(cb);
 };
 
 UserSchema.methods.setPassword = function(password){

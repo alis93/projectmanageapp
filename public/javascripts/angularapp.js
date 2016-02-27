@@ -48,11 +48,11 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     url:'/projects',
                     templateUrl: 'templates/projects.html',
                     data:{pageTitle: 'projects'},
-                    controller: 'ProjectController as projectCtrl',
+                    controller: 'ProjectsController as projectsCtrl',
                     parent: 'root',
                     resolve: {
-                        projectPromise: ['projects', function (projects) {
-                            return projects.getAllProjects();
+                        projectsPromise: ['projectsFactory', function (projectsFactory) {
+                            return projectsFactory.getAllProjects();
                         }]
                     }
                 })
@@ -63,8 +63,62 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     parent: 'root',
                     controller: 'NewProjectController as projectCtrl'
                 })
+                .state('project', {
+                    url: '/projects/{projectId}',
+                    templateUrl: 'templates/project.html',
+                    abstract: true,
+                    //controller:'ProjectController as projectCtrl',
+                    parent: 'root',
+                    resolve: {
+                        project: ['projectsFactory', '$stateParams', function (projectsFactory, $stateParams) {
+                            return projectsFactory.getProject($stateParams.projectId);
+                        }],
+                        projectId: ['$stateParams', function ($stateParams) {
+                            return $stateParams.projectId;
+                        }]
+                    }
+                })
+                .state('project.info', {
+                    url: '/info',
+                    data: {pageTitle: 'Project Information'},
+                    templateUrl: 'templates/projectInfo.html',
+                    controller: 'ProjectInfoController as infoCtrl'
+                })
+                .state('project.pages', {
+                    url: '/pages',
+                    data: {pageTitle: 'Pages'},
+                    templateUrl: 'templates/pages.html',
+                    controller: 'PagesController as pagesCtrl'
+                })
+                .state('project.pages.page', {
+                    url: '/{pageId}',
+                    templateUrl: 'templates/page.html',
+                    resolve: {
+                        page: ['project', '$stateParams', '$state', function (project, $stateParams, $state) {
+                            if (!($stateParams.pageId < project.pages.length && $stateParams.pageId >= 0) || !$stateParams.pageId) {
+                                $state.go('project.pages', {projectId: projectId});
+                            }
+                            return project.pages[$stateParams.pageId];
+                        }
+                        ]
+                    },
+                    controller: 'PageController as pageCtrl'
+                })
+                .state('project.files', {
+                    url: '/files',
+                    data: {pageTitle: 'Files'},
+                    templateUrl: 'templates/files.html',
+                    controller: 'FilesController as filesCtrl'
+                })
+                .state('project.file', {
+                    url: '/file',
+                    templateUrl: 'templates/file.html',
+                    controller: 'FileController as fileCtrl'
+                })
+
 
             ;
+
 
             $urlRouterProvider.otherwise('login');
         }

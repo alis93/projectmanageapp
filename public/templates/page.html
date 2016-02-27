@@ -1,0 +1,68 @@
+<div layout="column" flex="auto" layout-padding class="page-form-div md-whiteframe-z2 ">
+    <form name="pageCtrl.pageForm" ng-submit="pageCtrl.updatePage()">
+
+        <md-input-container class="md-block page-title-container">
+            <label class="md-caption">Title</label>
+            <input type="text" md-maxlength="25"
+                   placeholder="Give your page a title"
+                   ng-model="pageCtrl.page.title"/>
+        </md-input-container>
+
+        <div class="dates" layout="row" layout-align="space-around" layout-padding>
+            <div layout="column" class="date-input-container" layout-align="space-between center">
+                <label class="md-caption">When will you start this?</label>
+                <md-datepicker ng-model="pageCtrl.page.startDate" md-min-date="pageCtrl.minDate"
+                               md-placeholder="Enter date"></md-datepicker>
+            </div>
+            <div layout="column" class="date-input-container" layout-align="space-between  center">
+                <label class="md-caption">When this due?</label>
+                <md-datepicker ng-model="pageCtrl.page.endDate" md-min-date="pageCtrl.minDate"
+                               md-placeholder="Enter date"></md-datepicker>
+            </div>
+            <div layout="column" class="date-input-container" layout-align="space-between  center">
+                <label class="md-caption">Do you want to set a reminder?</label>
+                <md-datepicker ng-model="pageCtrl.page.reminderDate" md-min-date="pageCtrl.minDate"
+                               md-placeholder="Enter date"></md-datepicker>
+            </div>
+        </div>
+
+        <div class="md-block page-description">
+            <label>Description</label>
+            <text-angular name="{{pageCtrl.page._id}}" ng-model="pageCtrl.page.description"></text-angular>
+        </div>
+
+        <div layout="row" layout-align="start" layout-padding>
+            <md-input-container layout="centre">
+                <md-button class="md-raised md-primary submit-btn" type="submit">Update</md-button>
+            </md-input-container>
+        </div>
+    </form>
+
+
+    <div layout="column" layout-align="center" ng-repeat="comment in pageCtrl.page.comments | orderBy:'createdAt'">
+        <span class="md-body-1">{{comment.author}} Posted - {{comment.createdAt}}</span>
+        <p class="md-body-2">{{comment.body}}</p>
+        <md-divider layout-padding layout-margin></md-divider>
+
+    </div>
+
+
+    <div>
+        <form name="pageCtrl.commentForm" class="comment-form" ng-submit="pageCtrl.addComment()">
+            <h3>Add a new comment</h3>
+            <md-input-container class="comment-text-input">
+                <label>your comment</label>
+                <input type="text" ng-model="pageCtrl.commentBody"/>
+            </md-input-container>
+
+            <div layout="row" layout-align="start" layout-padding>
+                <md-input-container layout="centre">
+                    <md-button class="md-raised md-primary submit-btn" type="submit">Post</md-button>
+                </md-input-container>
+            </div>
+
+        </form>
+    </div>
+
+
+</div>

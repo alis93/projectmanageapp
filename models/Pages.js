@@ -12,7 +12,9 @@ var PageSchema = new mongoose.Schema({
     description:{type:String},
     startDate:{type: Date},
     endDate:{type: Date},
-    reminderDate:{type: Date}
+    reminderDate: {type: Date},
+    completed: {type: Boolean, default: false},
+    comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
 },{timestamps: true});
 
 mongoose.model('Page',PageSchema);

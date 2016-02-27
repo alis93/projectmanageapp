@@ -1,7 +1,7 @@
 
 <md-grid-list flex layout-fill md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height="200"
               md-gutter="8px" class="project-card-grid">
-    <md-grid-tile ng-repeat="project in projectCtrl.projects | orderBy:'-createdAt' | filter:{archived:false}">
+    <md-grid-tile ng-repeat="project in projectsCtrl.projects | orderBy:'-createdAt' | filter:{archived:false}">
         <md-card layout-fill>
             <md-card-header layout-align="end center">
                 <md-card-avatar flex>
@@ -12,16 +12,16 @@
                         <md-icon md-font-library="material-icons">bookmark</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" aria-label="Archive"
-                               ng-click="projectCtrl.archiveProject(project)">
+                               ng-click="projectsCtrl.archiveProject(project,true)">
                         <md-icon md-font-library="material-icons">done</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" aria-label="Delete"
-                               ng-click="projectCtrl.confirmDelete($event,project)">
+                               ng-click="projectsCtrl.confirmDelete($event,project)">
                         <md-icon md-font-library="material-icons">delete</md-icon>
                     </md-button>
                 </md-card-actions>
             </md-card-header>
-            <md-card-title>
+            <md-card-title ng-click="projectsCtrl.loadProject(project)">
                 <md-card-title-text>
                     <span class="md-headline">{{project.title}}</span>
                     <span class="md-subhead" ng-show="project.endDate != null">Due: {{project.endDate}}</span>
@@ -38,15 +38,19 @@
 
 <md-grid-list flex layout-fill md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height="200"
               md-gutter="8px" class="project-card-grid">
-    <md-grid-tile ng-repeat="project in projectCtrl.projects | orderBy:'-createdAt' | filter:{archived:true}">
+    <md-grid-tile ng-repeat="project in projectsCtrl.projects | orderBy:'-createdAt' | filter:{archived:true}">
         <md-card layout-fill>
             <md-card-header layout-align="end center">
                 <md-card-avatar flex>
                     <img src="{{project.projectIcon}}" class="md-icon">
                 </md-card-avatar>
                 <md-card-actions flex layout="row" layout-align="end center">
+                    <md-button class="md-icon-button" aria-label="Archive"
+                               ng-click="projectsCtrl.archiveProject(project,false)">
+                        <md-icon md-font-library="material-icons">done</md-icon>
+                    </md-button>
                     <md-button class="md-icon-button" aria-label="Delete"
-                               ng-click="projectCtrl.confirmDelete($event,project)">
+                               ng-click="projectsCtrl.confirmDelete($event,project)">
                         <md-icon md-font-library="material-icons">delete</md-icon>
                     </md-button>
                 </md-card-actions>
@@ -64,6 +68,6 @@
 
 
 <!--md-fab-bottom-right-->
-<md-button ui-sref="newProject" class="md-fab new-project-btn" aria-label="Add Project">
+<md-button ui-sref="newProject" class="md-fab new-btn" aria-label="Add Project">
     <md-icon md-font-library="material-icons">add</md-icon>
 </md-button>

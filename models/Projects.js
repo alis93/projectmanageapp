@@ -11,36 +11,45 @@ var ProjectSchema = new mongoose.Schema({
     description:{type:String},
     endDate:{type: Date},
         moreInfo: [{
-            label: {type: String},
-            value: {type: String}
+            "label": {type: String},
+            "value": {type: String}
         }],
     pages:[{
-        title:String,
-        _id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Page' }
+        ref: 'Page'
     }],
-        archived: {type: Boolean, default: false}
+        archived: {type: Boolean, default: false},
 //    difficultyTags[{}], //used for tags when predicting how long will take to complete
 //    team:{},           //other users on the project
-//    files:{},          //files in this project---this will hold a reference to the file path
+        files: [{
+            fileId: {type: String},
+            filename: {type: String},
+            path: {type: String},
+            uploadedBy: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            uploadDate: {type: Date}
+        }]
 },{timestamps: true}
 );
+
 
 ProjectSchema.methods.updateProjectDetails = function(projectDetails,cb){
     this.title = projectDetails.title;
     this.description = projectDetails.description;
-    this.title = projectDetails.endDate;
     this.endDate = projectDetails.endDate;
-    this.moreInfo = projectdetails.moreInfo;
+    this.moreInfo = projectDetails.moreInfo;
+    this.projectIcon = projectDetails.projectIcon || '/images/default_folder.svg';
     this.save(cb);
 };
 
-ProjectSchema.methods.archiveProject = function (cb) {
-    this.archived = true;
+ProjectSchema.methods.setProjectArchived = function (archive, cb) {
+    this.archived = archive;
     this.save(cb);
 };
 
-
+ProjectSchema.methods.removeFile = function (filename, cb) {
+    //remove file from array code
+    //look at pinned projects?
+    this.save(cb);
+}
 
 mongoose.model('Project',ProjectSchema);

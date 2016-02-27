@@ -1,0 +1,50 @@
+<div layout="row">
+    <div flex="100" flex-gt-md="40" layout="column" class="page-list">
+        <md-list>
+            <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} "
+                          ng-click="pagesCtrl.goToPage(page)"
+                          class="md-whiteframe-z2 project-item" md-ink-ripple>
+                <md-title layout-padding="">{{page.title}}</md-title>
+                <span flex=""></span>
+                <div layout="row" layout-align="end" class="page-item-options">
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.completed(page,true)">
+                        <md-icon md-font-library="material-icons">done</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.delete(page)">
+                        <md-icon md-font-library="material-icons">delete</md-icon>
+                    </md-button>
+                </div>
+            </md-list-item>
+        </md-list>
+
+        <md-divider layout-padding layout-margin md-inset>Archived</md-divider>
+
+        <md-list>
+            <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:true}"
+                          ng-click="pagesCtrl.goToPage(page)"
+                          class="md-whiteframe-z2 project-item" md-ink-ripple>
+                <md-title layout-padding="">{{page.title}}</md-title>
+                <span flex=""></span>
+                <div layout="row" layout-align="end" class="page-item-options">
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.completed(page,false)">
+                        <md-icon md-font-library="material-icons">done</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.delete(page)">
+                        <md-icon md-font-library="material-icons">delete</md-icon>
+                    </md-button>
+                </div>
+            </md-list-item>
+        </md-list>
+    </div>
+
+    <ui-view flex="100" flex-gt-md="60"></ui-view>
+</div>
+
+<md-button ng-click="pagesCtrl.newPage()" class="md-fab  new-btn" aria-label="Add Project">
+    <md-icon md-font-library="material-icons">add</md-icon>
+</md-button>
+
+
+
+
+

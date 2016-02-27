@@ -1,0 +1,27 @@
+<div layout="column" flex="auto" layout-padding class="file-form-div md-whiteframe-z2 ">
+    <form name="fileCtrl.fileForm" ng-submit="fileCtrl.uploadFile()">
+
+        <div layout="column" flex-gt-xs="100" class="file-div" layout-align="space-around center">
+            <span class="md-body-2">{{fileCtrl.file.name}}</span>
+            <div class="button" ngf-select ng-model="fileCtrl.file" name="file"
+                 ngf-max-size="20MB" ngf-min-height="100"
+                 ngf-resize="{width: 100, height: 100}">
+                <md-button class="add-more-info-btn md-raised">
+                    <md-icon md-font-library="material-icons">file_upload</md-icon>
+                    Choose File to upload
+                </md-button>
+            </div>
+        </div>
+
+        <div layout="row" layout-align="end" layout-padding>
+            <md-input-container layout="centre">
+                <md-button ui-sref="project.files" class="md-raised md-warn md-hue-2 submit-btn">cancel</md-button>
+            </md-input-container>
+
+            <md-input-container>
+                <md-button class="md-raised md-primary submit-btn" type="submit">create</md-button>
+            </md-input-container>
+
+        </div>
+    </form>
+</div>

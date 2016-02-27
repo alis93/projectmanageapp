@@ -17,6 +17,7 @@ mongoose.connect('mongodb://localhost/projectmanager');
 require('./models/Users');
 require('./models/Projects');
 require('./models/Pages');
+require('./models/Comments');
 require('./config/passport');
 
 //routes

@@ -1,14 +1,12 @@
-
 <div layout="column" flex="auto" layout-padding class="project-form-div md-whiteframe-z2 ">
-    <form name="projectCtrl.projectForm" ng-submit="projectCtrl.createProject()">
-
+    <form name="infoCtrl.projectForm" ng-submit="infoCtrl.updateInfo()">
 
         <div layout="column" layout-padding layout-gt-xs="row" layout-align="space-around center">
 
             <div layout="column" flex-gt-xs="30" class="project-icon-div" layout-align="center center">
-                <img ngf-thumbnail="projectCtrl.file || '/images/default_folder.svg'" layout-fill layout-padding
+                <img ngf-thumbnail="infoCtrl.file || '/images/default_folder.svg'" layout-fill layout-padding
                      layout-margin class="project-icon-preview">
-                <div class="button" ngf-select ng-model="projectCtrl.file" name="file" ngf-pattern="'image/*'"
+                <div class="button" ngf-select ng-model="infoCtrl.file" name="file" ngf-pattern="'image/*'"
                      ngf-accept="'image/*'" ngf-max-size="20MB" ngf-min-height="100"
                      ngf-resize="{width: 100, height: 100}">
                     <md-button class="add-more-info-btn md-raised">
@@ -23,12 +21,12 @@
                     <label class="md-caption">Title</label>
                     <input type="text" md-maxlength="25"
                            placeholder="Give your project a title" ng-required="true"
-                           ng-model="projectCtrl.project.title"/>
+                           ng-model="infoCtrl.project.title"/>
                 </md-input-container>
 
                 <div layout="row" class="date-input-container" layout-align="space-between  center">
                     <label class="md-caption">When is your Project Due?</label>
-                    <md-datepicker ng-model="projectCtrl.project.endDate" md-min-date="projectCtrl.minDate"
+                    <md-datepicker ng-model="infoCtrl.project.endDate" md-min-date="infoCtrl.minDate"
                                    md-placeholder="Enter date"></md-datepicker>
                 </div>
             </div>
@@ -37,11 +35,11 @@
 
         <div class="md-block project-description">
             <label>Description</label>
-            <text-angular name="description" ng-model="projectCtrl.project.description"></text-angular>
+            <text-angular name="description" ng-model="infoCtrl.project.description"></text-angular>
         </div>
 
         <div layout-padding layout-margin>
-            <div layout="column" ng-repeat="infoField in projectCtrl.project.moreInfo">
+            <div layout="column" ng-repeat="infoField in infoCtrl.project.moreInfo">
                 <div layout="column" layout-gt-xs="row" layout-align="space-around center">
                     <md-input-container>
                         <input type="text" placeholder="Label" ng-model="infoField.label"/>
@@ -49,26 +47,20 @@
                     <md-input-container class="md-block">
                         <input type="text" placeholder="Value" ng-model="infoField.value"/>
                     </md-input-container>
-                    <md-button ng-click="projectCtrl.removeMoreInfo($index)">remove</md-button>
+                    <md-button ng-click="infoCtrl.removeMoreInfo($index)">remove</md-button>
                 </div>
             </div>
         </div>
 
         <md-input-container layout="row" layout-align="center">
-            <md-button ng-click="projectCtrl.addMoreInfo()" class="add-more-info-btn md-raised">Add More Information
+            <md-button ng-click="infoCtrl.addMoreInfo()" class="add-more-info-btn md-raised">Add More Information
             </md-button>
         </md-input-container>
 
         <div layout="row" layout-align="end" layout-padding>
-            <md-input-container layout="centre">
-                <md-button ui-sref="projects" class="md-raised md-warn md-hue-2 submit-btn">cancel</md-button>
+            <md-input-container>
+                <md-button class="md-raised md-primary submit-btn" type="submit">Update</md-button>
             </md-input-container>
-
-            <md-input-container layout="centre">
-                <md-button class="md-raised md-primary submit-btn" type="submit">create</md-button>
-            </md-input-container>
-
         </div>
     </form>
-
 </div>
