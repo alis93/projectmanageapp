@@ -112,7 +112,13 @@ angular.module("projectManager")
         };
 
         self.updateInfo = function () {
-            projectsFactory.updateProject(self.file, self.project).then(function (resp) {
+            projectsFactory.updateProject(self.file, {
+                _id: project._id,
+                title: project.title,
+                description: project.description,
+                endDate: project.endDate,
+                moreInfo: project.moreInfo
+            }).then(function (resp) {
                 console.log(resp);
                 $mdToast.showSimple('Information Updated!');
             });

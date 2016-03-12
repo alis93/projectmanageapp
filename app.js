@@ -5,6 +5,8 @@ var logger       = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var multer = require('multer');
+require('email-existence');
+require('shortid');
 
 //package modules
 var mongoose = require('mongoose');
@@ -15,6 +17,7 @@ mongoose.connect('mongodb://localhost/projectmanager');
 
 //schemas
 require('./models/Users');
+require('./models/Invites');
 require('./models/Projects');
 require('./models/Pages');
 require('./models/Comments');

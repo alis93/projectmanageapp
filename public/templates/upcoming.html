@@ -1,0 +1,11 @@
+<div flex="100" layout="column" class="update-list">
+    <md-list>
+        <md-list-item layout="row" ng-repeat="event in upcomingCtrl.eventList | orderBy:'date' "
+                      ng-click="upcomingCtrl.goToLink(event.urlString)"
+                      class="md-whiteframe-z2 project-item" md-ink-ripple>
+            <span flex flex-sm="20" flex-gt-sm="15" layout-padding>{{event.date | date:"dd/MM/yyyy"}}</span>
+            <md-title flex layout-padding class="md-body-2">{{event.event}}</md-title>
+            <span flex-gt-sm="5"></span>
+        </md-list-item>
+    </md-list>
+</div>

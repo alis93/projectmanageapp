@@ -6,13 +6,25 @@ angular.module("projectManager")
         var o = {};
 
         o.newPage = function (projectId) {
-            return $http.post('/projects/' + projectId + '/pages', {
+            return $http.post('/projects/' + projectId + '/pages', {}, {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
             }).then(function (data) {
                 return data.data;
             }, function (err) {
                 console.log(err);
             });
+        };
+
+        o.getPage = function (projectId, pageId) {
+
+            return $http.get('/projects/' + projectId + '/pages/' + pageId, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.log(err);
+            });
+            ;
         };
 
         o.updatePage = function (projectId, page) {
@@ -32,7 +44,9 @@ angular.module("projectManager")
         };
 
         o.delete = function (projectId, pageId) {
-            return $http.delete('/projects/' + projectId + '/pages/' + pageId);
+            return $http.delete('/projects/' + projectId + '/pages/' + pageId, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            });
         };
 
         o.addComment = function (projectId, pageId, comment) {

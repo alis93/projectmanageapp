@@ -19,14 +19,21 @@ var ProjectSchema = new mongoose.Schema({
         ref: 'Page'
     }],
         archived: {type: Boolean, default: false},
-//    difficultyTags[{}], //used for tags when predicting how long will take to complete
-//    team:{},           //other users on the project
+        //    difficultyTags[{}], //used for tags when predicting how long will take to complete
+        team: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], //other users on the project
+        pending: [{email: {type: String}}], //other users on the project
         files: [{
             fileId: {type: String},
             filename: {type: String},
             path: {type: String},
             uploadedBy: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
             uploadDate: {type: Date}
+        }],
+        updates: [{
+            urlString: {type: String},
+            updatedBy: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+            update: {type: String},
+            date: {type: Date, default: Date.now()}
         }]
 },{timestamps: true}
 );
@@ -35,9 +42,9 @@ var ProjectSchema = new mongoose.Schema({
 ProjectSchema.methods.updateProjectDetails = function(projectDetails,cb){
     this.title = projectDetails.title;
     this.description = projectDetails.description;
-    this.endDate = projectDetails.endDate;
+    this.endDate = Date.parse(projectDetails.endDate) || null;
     this.moreInfo = projectDetails.moreInfo;
-    this.projectIcon = projectDetails.projectIcon || '/images/default_folder.svg';
+    this.projectIcon = projectDetails.projectIcon;
     this.save(cb);
 };
 
@@ -50,6 +57,6 @@ ProjectSchema.methods.removeFile = function (filename, cb) {
     //remove file from array code
     //look at pinned projects?
     this.save(cb);
-}
+};
 
 mongoose.model('Project',ProjectSchema);

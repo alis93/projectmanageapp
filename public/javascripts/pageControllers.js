@@ -6,13 +6,12 @@ angular.module("projectManager")
         self.newPage = function () {
             pagesFactory.newPage(project._id).then(function (newPage) {
                 project.pages.push(newPage);
-                self.goToPage(newPage);
+                self.goToPage(newPage._id);
             });
         };
 
-        self.goToPage = function (page) {
-            var idx = self.pages.indexOf(page);
-            $state.go('project.pages.page', {pageId: idx});
+        self.goToPage = function (pageId) {
+            $state.go('project.pages.page', {pageId: pageId});
         };
 
         self.delete = function (page) {
@@ -20,10 +19,16 @@ angular.module("projectManager")
             pagesFactory.delete(project._id, page._id).then(function () {
                 var idx = self.pages.indexOf(page);
                 project.pages.splice(idx, 1);
-                var numPages = self.pages.length;
-                var nextIdx = idx > 0 ? idx - 1 : idx + 1;
-                self.goToPage(self.pages[idx - 1]);
                 $mdToast.showSimple('Page Deleted');
+                var numPages = self.pages.length;
+                if (numPages === 0) {
+                    $state.go('project.pages');
+                } else {
+                    if (idx == numPages) {
+                        idx -= 1;
+                    }
+                    self.goToPage(self.pages[idx]._id);
+                }
             });
         };
 

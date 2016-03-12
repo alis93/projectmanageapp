@@ -2,6 +2,8 @@ var express   = require('express');
 var mime = require('mime');
 var router    = express.Router();
 var multer = require('multer');
+var emailExistence = require('email-existence');
+var shortid = require('shortid');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -24,6 +26,7 @@ var User      = mongoose.model('User');
 var Project   = mongoose.model('Project');
 var Page      = mongoose.model('Page');
 var Comment = mongoose.model('Comment');
+var Invite = mongoose.model('Invite');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
@@ -69,41 +72,127 @@ router.post('/login', function(req, res, next){
     })(req, res, next);
 });
 
+//get user's details, either this user or using supplied userid
+router.param('user_id', function (req, res, next, id) {
+    console.log('user ');
+    User.findById(id)
+        .populate('projects._id')
+        .exec(function (err, user) {
+            if (err) {
+                return next(err);
+            }
+            req.user = user;
+            return next();
+        });
+});
+
+//get all projects with pages populated
+router.get('/upcomingUserEvents', auth, function (req, res, next) {
+    User.findById(req.payload._id, 'projects')
+        .populate({path: 'projects._id', select: 'title _id endDate pages'})
+        .populate({
+            path: 'projects._id',
+            populate: {path: 'pages', model: Page, select: '_id title endDate reminderDate startDate'}
+        })
+        .exec(function (err, user) {
+            if (err) {
+                return next(err);
+            }
+
+            var eventList = [];
+
+            user.projects.forEach(function (projectId) {
+                var project = projectId._id;
+                project.pages.forEach(function (page) {
+                    if (page.startDate && page.reminderDate && page.endDate) {
+                        var urlString = '/projects/' + project._id + '/pages/' + page._id;
+                        if (page.startDate) {
+                            eventList.push({
+                                urlString: urlString,
+                                event: 'Page ' + page.title + ' is Due to Start ',
+                                date: page.startDate
+                            });
+                        }
+                        if (page.reminderDate) {
+                            eventList.push({
+                                urlString: urlString,
+                                event: 'Reminder for the page ' + page.title,
+                                date: page.reminderDate
+                            });
+                        }
+                        if (page.endDate) {
+                            eventList.push({
+                                urlString: urlString,
+                                event: 'Page ' + page.title + ' is Due to Start ',
+                                date: page.endDate
+                            });
+                        }
+                    }
+                });
+                if (project.endDate) {
+                    eventList.push({
+                        urlString: '/projects/' + project._id,
+                        event: 'The project ' + project.title + ' is Due',
+                        date: project.endDate
+                    });
+                }
+            });
+            res.json(eventList);
+        });
+});
 
 /* GET all projects belonging to a user */
 /* CREATE a new project for a users */
-
 router.route('/projects')
     //get all projects belonging to the current user
     .get(auth,function(req,res,next){
         User.findById(req.payload._id,'projects')
-            .populate('projects._id', '_id createdAt projectIcon title endDate archived')
+            .populate('projects._id')
             .exec(function(err,user){
                 if(err) {return next(err);}
                 var projects = user.projects.map(function (project) {
                     return project._id;
                 });
+                ////get project invites
+                //Invites.find({project:req.project._id,email:req.body.email})
+                //    .populate({path:'project', select:'title'})
+                //    .exec(function(err,invites){
+                //    console.log("invited projects " + invites);
+                //    //res.json(projects:projects,invites:invites); //TODO
                 res.json(projects);
+                //});
             });
     })
     //add new project, also updating user
     .post(auth, upload.single('file'), function (req, res, next) {
-        console.log(req.body);
 
         var project = new Project(req.body);
         project.createdBy = req.payload._id;
+        project.team.push(req.payload._id);
         if (req.file) {
             project.projectIcon = '/images/' + req.file.filename;
         }
+        project.updates.push({
+            urlString: "/projects/" + project._id,
+            updatedBy: req.payload._id,
+            update: req.payload.name + " created a new project - " + project.title,
+            date: Date.now()
+        });
 
         project.save(function(err,project){
             if (err) {
                 return next(err);
             }
-            User.findByIdAndUpdate(req.payload._id, {$push: {projects: {_id: project._id}}}, {upsert: true, new: true})
-                .exec(function (err) {
+
+            User.findById(req.payload._id).exec(function (err, user) {
+                if (err) {
+                    return next(err);
+                }
+                user.projects.push(project._id);
+                user.save(function (err) {
                     if(err){ return next(err); }
                     res.json({project: project});
+                });
             });
         });
     });
@@ -119,8 +208,9 @@ router.route('/projects')
 //get the current project in the url
 router.param('project_id',function(req,res,next,id){
     Project.findById(id)
-        .populate({path: 'pages'})
-        .populate({path: 'pages', populate: {path: 'comments', model: 'Comment'}})
+        .populate({path: 'pages team', select: 'name email'})
+        .populate({path: 'pages', populate: {path: 'assignedTo', model: 'User', select: 'name email'}})
+        //.populate({path: 'pages', populate: {path: 'comments', model: 'Comment'}})
         .exec(function (err, project) {
             if (err) {
                 return next(err);
@@ -129,6 +219,7 @@ router.param('project_id',function(req,res,next,id){
                 return next(new Error('can\'t find project'));
             }
             req.project = project;
+            console.log(req.project);
             return next();
         });
 });
@@ -141,35 +232,51 @@ router.route('/projects/:project_id')
     })
     //update project details
     .put(auth, upload.single('file'), function (req, res, next) {
-        console.log(req.body);
+
+
         var projectDetails = req.body;
         if (req.file) {
             projectDetails.projectIcon = '/images/' + req.file.filename;
         }
         req.project.updateProjectDetails(projectDetails, function (err, project) {
-            if(err){return next(err);}
-            res.json(project);
+            if (err) {
+                return next(err);
+            }
+            project.updates.push({
+                urlString: "/projects/" + project._id,
+                updatedBy: req.payload._id,
+                update: req.payload.name + " updated Project Information for - " + project.title,
+                date: Date.now()
+            });
+            project.save(function (err, project) {
+                if (err) {
+                    return next(err);
+                }
+                res.json(project);
+            });
         });
     })
     //delete a specific project
-    .delete(function(req,res,next){
-        req.project.remove(function(err,project){
-            if(err){return next(err);}
-            User.findOneAndUpdate({_id:project.createdBy},
-                {$pull:{projects:{ _id:project._id }} },
-                {new: true})
-                .exec(function (err) {
+    .delete(auth, function (req, res, next) {
+        console.log("DELETE!!");
+        //if last member in project.team then remove project completely - TODO
+        //else remove from the user project list only and project.team -DONE
+        User.findOneAndUpdate({_id: req.payload._id},
+            {$pull: {projects: {_id: req.project._id}}}, {new: true})
+            .exec(function (err, user) {
+                console.log("err:" + err);
+                console.log("user:" + user);
                     if(err){return next(err);}
-                    //delete all pages related to this project.
-                    //simply findandremove pages with a project id matching removed project
-                    Page.remove({project:project._id})
-                        .exec(function (err) {
-                            if(err){return next(err);}
-                            //remove all files?? only if they have their own schema
-                            //however we will have to remove them from the filesystem anyway using their paths.
-                            res.json(project);
-                        });
+                var index = req.project.team.findIndex(function (member) {
+                    return user._id.toString() == member._id.toString();
                 });
+                if (index != -1) {
+                    req.project.team.splice(index, 1);
+                    req.project.save(function (err) {
+                            if(err){return next(err);}
+                        });
+                }
+                res.json(req.project);
         });
     });
 
@@ -192,9 +299,22 @@ router.put('/projects/:project_id/archive', auth, function (req, res) {
                     });
                 });
         }
-        var respStr = 'The project is now';
-        respStr = respStr + (project.archived ? 'Archived' : 'Active');
-        res.json(respStr);
+
+        project.updates.push({
+            urlString: "/projects/" + project._id,
+            updatedBy: req.payload._id,
+            update: req.payload.name + " Project was Archived - " + project.title,
+            date: Date.now()
+        });
+
+        project.save(function (err, project) {
+            if (err) {
+                return next(err);
+            }
+            var respStr = 'The project is now';
+            respStr = respStr + (project.archived ? 'Archived' : 'Active');
+            res.json(respStr);
+        });
     });
 });
 
@@ -209,12 +329,15 @@ router.put('/projects/:project_id/bookmark', auth, function (req, res) {
                 if (err) {
                     return next(err);
                 }
-                console.log('a project is now pinneed: ' + req.body.isPinned);
                 res.json('bookmark changed successfully!');
             })
         });
 });
 
+//get project updates
+router.get('/projects/:project_id/updates', auth, function (req, res) {
+    res.json(req.project.updates);
+});
 
 /* GET all pages in a project */
 /* POST a new page in a project */
@@ -222,11 +345,10 @@ router.put('/projects/:project_id/bookmark', auth, function (req, res) {
 //get all the current pages in a project or
 //post a new page
 router.route('/projects/:project_id/pages')
-    .get(function(req,res){
+    .get(auth, function (req, res) {
         res.json(req.project.pages);
     })
-    .post(function(req,res,next){
-
+    .post(auth, function (req, res, next) {
         var page = new Page(req.body);
         page.project = req.project._id;
         page.createdBy = req.project.createdBy;
@@ -235,9 +357,15 @@ router.route('/projects/:project_id/pages')
             //change this to with id key. like comments in thinkster
             req.project.pages.push({_id: page._id});
 
+            req.project.updates.push({
+                urlString: "/projects/" + req.project._id + "/pages/" + page._id,
+                updatedBy: req.payload._id,
+                update: req.payload.name + " added a new page in - " + req.project.title,
+                date: Date.now()
+            });
+
             req.project.save(function(err){
                 if(err){return next(err);}
-                console.log('page', page);
                 res.json(page);
             });
         });
@@ -249,7 +377,9 @@ router.route('/projects/:project_id/pages')
 
 //GET the current page in the url
 router.param('page_id', function (req, res, next, id) {
-    Page.findById(id).populate('comments').exec(function (err, page) {
+    Page.findById(id).populate('comments')
+        .populate('comments')
+        .exec(function (err, page) {
         if (err) {
             return next(err);
         }
@@ -261,15 +391,23 @@ router.param('page_id', function (req, res, next, id) {
     });
 });
 router.route('/projects/:project_id/pages/:page_id')
-    .get(function (req, res) {
+    .get(auth, function (req, res) {
         res.json(req.page);
     })
-    .delete(function (req, res, next) {
+    .delete(auth, function (req, res, next) {
         req.page.remove(function (err, page) {
             if (err) {
                 return next(err);
             }
+
+            req.project.updates.push({
+                urlString: "/projects/" + req.project._id + "/pages",
+                updatedBy: req.payload._id,
+                update: req.payload.name + " Deleted the page " + page.title + " in - " + req.project.title,
+                date: Date.now()
+            });
             req.project.pages.pull(page);
+
             req.project.save(function (err) {
                 if (err) {
                     return next(err);
@@ -278,7 +416,11 @@ router.route('/projects/:project_id/pages/:page_id')
             });
         });
     })
-    .put(function (req, res) {
+
+
+
+    //add update here
+    .put(auth, function (req, res) {
         req.page.title = req.body.title;
         req.page.description = req.body.description;
         req.page.assignedTo = req.body.assignedTo;
@@ -300,7 +442,21 @@ router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req,
         if (err) {
             return next();
         }
-        res.json(page);
+
+        req.project.updates.push({
+            urlString: "/projects/" + req.project._id + "/pages",
+            updatedBy: req.payload._id,
+            update: req.payload.name + " Completed the page " + page.title + " in - " + req.project.title,
+            date: Date.now()
+        });
+
+        req.project.save(function (err) {
+            if (err) {
+                return next();
+            }
+            res.json(page);
+        });
+
     });
 });
 
@@ -330,7 +486,7 @@ router.post('/projects/:project_id/pages/:page_id/comments', auth, function (req
 /*GET all files*/
 //gets all files when getting a project
 /*POST a new file*/
-router.post('/projects/:project_id/files', auth, upload.single('file'), function (req, res) {
+router.post('/projects/:project_id/files', auth, upload.single('file'), function (req, res, next) {
 
     console.log(req.file);
 
@@ -354,7 +510,7 @@ router.post('/projects/:project_id/files', auth, upload.single('file'), function
 /*GET single file*/
 //can we just use the filename in front end like image?
 /*DELETE single file*/
-router.delete('/projects/:project_id/files/:filename', auth, function () {
+router.delete('/projects/:project_id/files/:filename', auth, function (req, res, next) {
     //delete from array in project schema
     req.project.removeFile(req.params.filename, function (err) {
         if (err) {
@@ -363,3 +519,207 @@ router.delete('/projects/:project_id/files/:filename', auth, function () {
         //fs.unlink delete from folder
     });
 });
+
+//Team features in project
+router.put('/projects/:project_id/invite', auth, function (req, res, next) {
+    var resp = {newInvite: false, msg: ""};
+    emailExistence.check(req.body.email, function (err, isEmail) {
+        if (!isEmail) {
+            resp.msg = "This is not a real email address!";
+            res.json(resp);
+        } //valid email
+        else {
+            var existingInvite = req.project.pending.find(function (invite) {
+                return req.body.email === invite.email.toString();
+            });
+            var existingMember = req.project.team.find(function (member) {
+                return req.body.email === member.email.toString();
+            });
+            if (existingMember) { //already in project
+                resp.newInvite = false;
+                resp.msg = "This email is already part of the project";
+                res.json(resp);
+            } else if (existingInvite) { //already invited
+                resp.newInvite = false;
+                resp.msg = "This email has already been sent an invite, but we have sent a reminder";
+                res.json(resp);
+                sendInvite(req.project._id, req.body.email); //send new invite TODO
+            } else {
+                resp.newInvite = true;
+                resp.msg = "We have sent a reminder to this email address";
+                req.project.pending.push({email: req.body.email});//add to pending
+                req.project.updates.push({
+                    urlString: "/projects/" + req.project._id + "/team",
+                    updatedBy: req.payload._id,
+                    update: req.body.email + " was invited to the project - " + req.project.title,
+                    date: Date.now()
+                });
+                req.project.save(function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.json(resp);
+                    sendInvite();//send invite TODO
+                });
+            }
+        }
+    });
+});
+
+
+router.put('/projects/:project_id/acceptInvite', auth, function (req, res, next) {
+    res.json("test");
+
+    //go through invite schema using invite id supplied
+    //Invites.findById(req.body.inviteID)
+    //check email and invite code match
+    //remove the record
+    //in the project
+    //remove email in pending array
+    //add user to team array
+    //res project
+    //in front end go into the project
+    //add project into projects array
+
+});
+
+//sends unique url using email and code
+function sendInvite(projectID, inviteEmail) {
+    console.log("invite");
+    Invite.findOne({project: projectID, email: inviteEmail})
+        .exec(function (err, invite) {
+            if (!invite) {
+                console.log("creating new invite");
+                invite = new Invite({
+                    project: projectID,
+                    email: inviteEmail,
+                    code: shortid.generate()
+                });
+                console.log(invite);
+
+            }
+        });
+    //checks InviteSchema for existing invite for the project and email
+
+    //Invites.findOne({project:req.project._id,email:req.body.email})
+    //    .exec(function(err,invite){
+    //        if(!invite){
+    //            //add invite record to schema //TODO
+    //            //send invite //TODO
+    //        }
+    //    });
+
+    //if it exists dont add new invite
+    //  if it doesnt add new invite
+
+    //check if user exists with the email
+
+    //User.find({email:inviteEmail}).exec()
+
+    //if exists send email saying login and accept the invite
+    //if it doesnt exist send email saying sign up and accept invite
+
+    //when in .get/projects route check invites schema for invites to users email and send along
+    // with projects
+}
+
+//sends email
+function sendEmail() {
+}
+
+
+//
+//router.put('/projects/:project_id/invite',auth,function(req,res, next){
+//    emailExistence.check(req.body.email, function(err, exists){
+//        var resp = {
+//            exists:false,
+//            msg:"",
+//            invite:null
+//        };
+//        //if(!exists){resp.msg = "This is not a real email address!";res.json(resp);} //TODO
+//        if(1==9){}
+//        else {
+//            var existingInvite = req.project.pending.find(function (invite) {
+//                return req.body.email === invite.email.toString();
+//            });
+//
+//            var existingMember = req.project.team.find(function (member) {
+//                return req.body.email === member.email.toString();
+//            });
+//
+//
+//            if (existingMember) {
+//                resp.exists = true;
+//                resp.msg = "This email already exists in the project";
+//                resp.invite = null;
+//                res.json(resp);
+//            } else if (existingInvite) {
+//                resp.exists = true;
+//                resp.msg = "This email has already been sent an invite, but we have sent a reminder";
+//                resp.invite = existingInvite;
+//                sendInvite(); //send new invite TODO
+//                res.json(resp);
+//            } else {
+//                //if exists in system add and send email
+//                User.findOne({email: req.body.email})
+//                    .exec(function (err, user) {
+//                        console.log("user "+user!==null);
+//                        if (err) {return next(err);}
+//                        if (user) {
+//                            var project = user.projects.find(function (project) {
+//                                return project._id.toString() == req.project._id.toString();
+//                            });
+//                            if (!project) {
+//                                user.projects.push(req.project);
+//                                user.save(function (err) {
+//                                    if (err) {return next(err);}
+//                                    req.project.team.push(user);
+//                                    req.project.updates.push({
+//                                        urlString: "/projects/" + req.project._id + "/team",
+//                                        updatedBy: req.payload._id,
+//                                        update: user.name + " was added to the project - " + req.project.title,
+//                                        date: Date.now()
+//                                    });
+//                                    req.project.save(function (err) {
+//                                        if (err) {
+//                                            return next(err);
+//                                        }
+//                                        resp.exists = false;
+//                                        resp.msg = "This user already exists and has been added to the project";
+//                                        resp.invite = user;
+//                                        //send email notifying they have been added -- TODO
+//                                        sendEmail();
+//                                        res.json(resp);
+//                                    });
+//                                });
+//                            } else {
+//                                resp.exists = true;
+//                                resp.msg = "This email already exists in the project";
+//                                resp.invite = null;
+//                                res.json(resp);
+//                            }
+//                        } else {
+//                            var invite = {email: req.body.email, code: shortid.generate()};
+//                            req.project.pending.push(invite);
+//                            req.project.updates.push({
+//                                urlString: "/projects/" + req.project._id + "/team",
+//                                updatedBy: req.payload._id,
+//                                update: req.body.email + " was invited to the project - " + req.project.title,
+//                                date: Date.now()
+//                            });
+//                            req.project.save(function (err) {
+//                                if (err) {
+//                                    return next(err);
+//                                }
+//                                resp.exists = false;
+//                                resp.msg = "The invite has been sent";
+//                                resp.invite = invite;
+//                                sendInvite(); //TODO
+//                                res.json(resp);
+//                            });
+//                        }
+//                    });
+//            }
+//        }
+//    });
+//});

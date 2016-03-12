@@ -36,25 +36,48 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                         if (!auth.isLoggedIn()) {
                             $state.go('login');
                         }
-                    }]
+                    }],
+                    resolve: {
+                        projectsPromise: ['projectsFactory', function (projectsFactory) {
+                            return projectsFactory.getAllProjects();
+                        }]
+                    }
                 })
                 .state('updates',{
                     url: '/updates',
-                    templateUrl: 'templates/home.html',
+                    templateUrl: 'templates/updates.html',
                     data:{pageTitle: 'Updates'},
-                    parent: 'root'
-                })
-                .state('projects',{
-                    url:'/projects',
-                    templateUrl: 'templates/projects.html',
-                    data:{pageTitle: 'projects'},
-                    controller: 'ProjectsController as projectsCtrl',
+                    controller: 'updatesController as updatesCtrl',
                     parent: 'root',
                     resolve: {
                         projectsPromise: ['projectsFactory', function (projectsFactory) {
                             return projectsFactory.getAllProjects();
                         }]
                     }
+                })
+                .state('upcoming', {
+                    url: '/upcoming',
+                    templateUrl: 'templates/upcoming.html',
+                    data: {pageTitle: 'Upcoming Events'},
+                    controller: 'upcomingController as upcomingCtrl',
+                    parent: 'root',
+                    resolve: {
+                        upcomingUserEvents: ['projectsFactory', function (projectsFactory) {
+                            return projectsFactory.getUpcomingUserEvents();
+                        }]
+                    }
+                })
+                .state('projects', {
+                    url: '/projects',
+                    templateUrl: 'templates/projects.html',
+                    data: {pageTitle: 'projects'},
+                    controller: 'ProjectsController as projectsCtrl',
+                    parent: 'root'
+                    //resolve: {
+                    //    projectsPromise: ['projectsFactory', function (projectsFactory) {
+                    //        return projectsFactory.getAllProjects();
+                    //    }]
+                    //}
                 })
                 .state('newProject', {
                     url: '/new-project',
@@ -95,12 +118,22 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     templateUrl: 'templates/page.html',
                     resolve: {
                         page: ['project', '$stateParams', '$state', function (project, $stateParams, $state) {
-                            if (!($stateParams.pageId < project.pages.length && $stateParams.pageId >= 0) || !$stateParams.pageId) {
-                                $state.go('project.pages', {projectId: projectId});
+                            if (!$stateParams.pageId) {
+                                $state.go('project.pages', {projectId: project._id});
                             }
-                            return project.pages[$stateParams.pageId];
-                        }
-                        ]
+                            var idx = -1;
+                            for (var i = 0; i < project.pages.length; i++) {
+                                if (project.pages[i]._id == $stateParams.pageId) {
+                                    idx = i;
+                                    break;
+                                }
+                            }
+                            if (idx === -1) {
+                                console.log('projectId', project._id);
+                                $state.go('project.pages', {projectId: project._id});
+                            }
+                            return project.pages[idx];
+                        }]
                     },
                     controller: 'PageController as pageCtrl'
                 })
@@ -114,6 +147,11 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     url: '/file',
                     templateUrl: 'templates/file.html',
                     controller: 'FileController as fileCtrl'
+                })
+                .state('project.team', {
+                    url: '/team',
+                    templateUrl: 'templates/team.html',
+                    controller: 'TeamController as teamCtrl'
                 })
 
 

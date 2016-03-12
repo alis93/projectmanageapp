@@ -2,7 +2,7 @@
     <div flex="100" flex-gt-md="40" layout="column" class="page-list">
         <md-list>
             <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} "
-                          ng-click="pagesCtrl.goToPage(page)"
+                          ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>
                 <span flex=""></span>
@@ -21,7 +21,7 @@
 
         <md-list>
             <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:true}"
-                          ng-click="pagesCtrl.goToPage(page)"
+                          ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>
                 <span flex=""></span>

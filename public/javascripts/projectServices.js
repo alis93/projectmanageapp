@@ -42,7 +42,9 @@ angular.module("projectManager")
 
         //delete a project
         obj.deleteProject = function (projectId) {
-            return $http.delete('/projects/' + projectId)
+            return $http.delete('/projects/' + projectId, {
+                    headers: {Authorization: 'Bearer ' + auth.getToken()}
+                })
                 //remove .then stuff
                 .then(function (resp) {
                     console.log(resp);
@@ -53,6 +55,15 @@ angular.module("projectManager")
 
         obj.getProject = function (projectId) {
             return $http.get('/projects/' + projectId, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.log(err);
+            });
+        };
+        obj.getUpcomingUserEvents = function () {
+            return $http.get('/upcomingUserEvents', {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
             }).then(function (data) {
                 return data.data;
@@ -74,6 +85,17 @@ angular.module("projectManager")
             //before returning here. then update that when pinned
             return;
         };
+
+        obj.inviteMember = function (projectID, invite) {
+            return $http.put('/projects/' + projectID + '/invite', invite, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.error("Error in factory: " + err);
+            });
+        };
+
 
         return obj;
     }]);

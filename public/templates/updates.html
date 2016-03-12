@@ -1,0 +1,12 @@
+<div flex="100" layout="column" class="update-list">
+    <md-list>
+        <md-list-item layout="row" ng-repeat="update in updatesCtrl.updatesList | orderBy:'-date' "
+                      ng-click="updatesCtrl.goToLink(update.urlString)"
+                      class="md-whiteframe-z2 project-item" md-ink-ripple>
+
+            <span flex flex-sm="20" flex-gt-sm="15" layout-padding>{{update.date | date:"dd/MM/yyyy"}}</span>
+            <md-title flex layout-padding class="md-body-2">{{update.update}}</md-title>
+            <span flex-gt-sm="5"></span>
+        </md-list-item>
+    </md-list>
+</div>

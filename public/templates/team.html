@@ -1,0 +1,51 @@
+<div layout="column" flex="100" class="team-list">
+
+    <div>
+        <span layout-margin class="md-headline"> Team Members </span>
+        <md-list>
+            <md-list-item layout="row" ng-repeat="member in teamCtrl.team"
+                          ng-click="teamCtrl.goToMember(member._id)"
+                          class="md-whiteframe-z2 project-item" md-ink-ripple>
+                <img src="images/one.png" class="member-img"/>
+                <md-title flex flex-sm="20" flex-gt-sm="15" layout-padding class="md-body-2">{{member.name}}</md-title>
+                <span> E-mail -  </span>
+                <md-title flex layout-padding class="md-body-2">{{member.email}}</md-title>
+                <span flex-gt-sm="5"></span>
+            </md-list-item>
+        </md-list>
+    </div>
+
+    <div ng-show="teamCtrl.pending">
+        <span layout-margin class="md-headline"> Pending Invites </span>
+
+        <md-list>
+            <md-list-item layout="row" ng-repeat="member in teamCtrl.pending" class="project-item">
+                <img src="images/one.png" class="member-img"/>
+                <span> E-mail -  </span>
+                <md-title flex layout-padding class="md-body-2">{{member.email}}</md-title>
+                <span flex-gt-sm="5"></span>
+            </md-list-item>
+        </md-list>
+    </div>
+    <span layout-margin></span>
+
+
+    <form name="userForm" ng-submit="teamCtrl.inviteMember()" layout-padding class="invite-form  md-whiteframe-z2">
+        <p class="md-headline">Invite a new Team Member</p>
+        <md-input-container layout="column" class="md-block">
+            <md-icon md-font-library="material-icons">email</md-icon>
+            <input ng-model="teamCtrl.invite.email" type="email" placeholder="Email" ng-required="true">
+        </md-input-container>
+
+        <md-input-container layout="column" class="md-block">
+            <md-icon md-font-library="material-icons">comment</md-icon>
+            <textarea ng-model="teamCtrl.invite.message" md-maxlength="150" rows="10" placeholder="Message"></textarea>
+        </md-input-container>
+
+        <md-input-container layout="column" layout="flex">
+            <md-button type="submit" class="md-raised md-primary submit-btn">Send Invite</md-button>
+        </md-input-container>
+
+    </form>
+
+</div>

@@ -113,6 +113,29 @@
     width: 100%;
 }
 
+.update-list {
+    text-align: center;
+}
+
+.member-img {
+    max-height: 50px;
+}
+
+.invite-form {
+    background-color: #fff;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (min-width: 960px) {
+
+    .invite-form {
+        width: 70%;
+
+    }
+
+}
+
 /*.page-view{*/
 /*display: none;*/
 /*}*/
