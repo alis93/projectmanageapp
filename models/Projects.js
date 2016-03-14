@@ -21,7 +21,7 @@ var ProjectSchema = new mongoose.Schema({
         archived: {type: Boolean, default: false},
         //    difficultyTags[{}], //used for tags when predicting how long will take to complete
         team: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], //other users on the project
-        pending: [{email: {type: String}}], //other users on the project
+        pendingEmails: [{type: String}], //other users on the project
         files: [{
             fileId: {type: String},
             filename: {type: String},

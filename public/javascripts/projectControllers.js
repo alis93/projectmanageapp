@@ -1,10 +1,11 @@
 angular.module("projectManager")
 
     .controller('ProjectsController',
-        ['projectsFactory', '$mdDialog', '$filter', '$mdToast', '$state',
-            function (projectsFactory, $mdDialog, $filter, $mdToast, $state) {
+        ['projectsFactory', '$mdDialog', '$filter', '$mdToast', '$state', 'allProjects', 'projectInvites',
+            function (projectsFactory, $mdDialog, $filter, $mdToast, $state, allProjects, projectInvites) {
                 var self = this;
-                self.projects = projectsFactory.projects;
+                self.projects = allProjects;
+                self.invites = projectInvites;
 
                 self.projects.map(function (project) {
                     project.endDate = $filter('date')(project.endDate, 'dd/MM/yyyy');
@@ -45,9 +46,17 @@ angular.module("projectManager")
 
                 self.loadProject = function (project) {
                     $state.go('project.pages', {projectId: project._id});
-
                 };
 
+                self.inviteResponse = function (invite, responseBool) {
+                    projectsFactory.respondToInvite(invite, responseBool)
+                        .then(function (data) {
+                            var idx = self.invites.indexOf(invite);
+                            self.invites.splice(idx, 1);
+                            self.projects.push(data.project);
+                            $mdToast.showSimple(data.msg);
+                        });
+                }
 
             }])
 
@@ -68,7 +77,8 @@ angular.module("projectManager")
 
             projectsFactory.createProject(self.file, self.project)
                 .then(function () {
-                        $state.go('projects');
+
+                    $state.go('projects');
                     }, function (resp) {
                         console.log('Error status: ' + resp.status);
                     }

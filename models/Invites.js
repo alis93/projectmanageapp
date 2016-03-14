@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var shortid = require('shortid');
 
 var InviteSchema = new mongoose.Schema({
-    project: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    project: {type: mongoose.Schema.Types.ObjectId, ref: 'Project'},
     email: {type: String},
     code: {
         type: String,

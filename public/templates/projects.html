@@ -1,3 +1,38 @@
+<md-divider flex="90" layout-padding layout-margin md-inset ng-show="projectsCtrl.invites.length>0">Project Invites
+</md-divider>
+
+<md-grid-list flex layout-fill md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height="200"
+              md-gutter="8px" class="project-card-grid">
+    <md-grid-tile ng-repeat="invite in projectsCtrl.invites | orderBy:'-createdAt'">
+        <md-card layout-fill>
+            <md-card-header layout-align="end center">
+                <md-card-avatar flex>
+                    <img src="{{invite.project.projectIcon}}" class="md-icon">
+                </md-card-avatar>
+            </md-card-header>
+            <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{invite.project.title}}</span>
+                    <!--YES/NO Actions-->
+                    <md-card-actions flex layout="row" layout-align="end center">
+                        <md-button class="md-raised md-primary" aria-label="YES"
+                                   ng-click="projectsCtrl.inviteResponse(invite,true)">
+                            YES
+                        </md-button>
+                        <md-button class="md-raised md-warn" aria-label="NO"
+                                   ng-click="projectsCtrl.inviteResponse(invite,false)">
+                            NO
+                        </md-button>
+                    </md-card-actions>
+                </md-card-title-text>
+            </md-card-title>
+        </md-card>
+    </md-grid-tile>
+</md-grid-list>
+
+
+<md-divider flex="90" layout-padding layout-margin md-inset>Active Projects</md-divider>
+
 
 <md-grid-list flex layout-fill md-cols-xs="1" md-cols-sm="2" md-cols-md="3" md-cols-gt-md="4" md-row-height="200"
               md-gutter="8px" class="project-card-grid">
@@ -30,7 +65,6 @@
         </md-card>
     </md-grid-tile>
 </md-grid-list>
-
 
 
 <md-divider flex="90" layout-padding layout-margin md-inset>Archived</md-divider>

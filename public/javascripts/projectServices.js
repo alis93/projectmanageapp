@@ -1,16 +1,15 @@
 angular.module("projectManager")
 
     .factory('projectsFactory', ['$http', 'auth', 'Upload', function ($http, auth, Upload) {
-        var obj = {
-            projects: []
-        };
+
+        var obj = {};
 
         //get all the projects for this user
         obj.getAllProjects = function () {
             return $http.get('/projects', {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
-            }).success(function (data) {
-                angular.copy(data, obj.projects); //obj.projects[0].archived = true;
+            }).then(function (data) {
+                return data.data;
             });
         };
 
@@ -23,14 +22,11 @@ angular.module("projectManager")
                 file: file,
                 data: project
             }).then(function (resp) {
-                console.log(resp);
-                obj.projects.push(resp.data.project);
-                return resp;
+                return resp.data.project;
             });
         };
 
         obj.updateProject = function (file, project) {
-
             return Upload.upload({
                 url: '/projects/' + project._id,
                 method: 'PUT',
@@ -78,6 +74,7 @@ angular.module("projectManager")
             });
         };
 
+        //TODO bookmarks
         obj.bookmarkProject = function () {
             //bookmark project
             //update pinned projects in user document in backend
@@ -88,6 +85,24 @@ angular.module("projectManager")
 
         obj.inviteMember = function (projectID, invite) {
             return $http.put('/projects/' + projectID + '/invite', invite, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.error("Error in factory: " + err);
+            });
+        };
+
+        obj.getInvites = function () {
+            return $http.get('/invites', {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            });
+        };
+
+        obj.respondToInvite = function (invite, responseBool) {
+            return $http.put('/inviteResponse', {invite: invite, response: responseBool}, {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
             }).then(function (data) {
                 return data.data;

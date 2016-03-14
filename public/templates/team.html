@@ -17,12 +17,11 @@
 
     <div ng-show="teamCtrl.pending">
         <span layout-margin class="md-headline"> Pending Invites </span>
-
         <md-list>
             <md-list-item layout="row" ng-repeat="member in teamCtrl.pending" class="project-item">
                 <img src="images/one.png" class="member-img"/>
                 <span> E-mail -  </span>
-                <md-title flex layout-padding class="md-body-2">{{member.email}}</md-title>
+                <md-title flex layout-padding class="md-body-2">{{member}}</md-title>
                 <span flex-gt-sm="5"></span>
             </md-list-item>
         </md-list>

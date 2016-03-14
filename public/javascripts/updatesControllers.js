@@ -2,11 +2,11 @@
  * Created by sulmanali on 29/02/2016.
  */
 angular.module("projectManager")
-    .controller('updatesController', ['projectsFactory', '$state', function (projectsFactory, $state) {
+    .controller('updatesController', ['projectsFactory', 'allProjects', '$state', function (projectsFactory, allProjects, $state) {
 
-
+        console.log(allProjects);
         var self = this;
-        self.projects = projectsFactory.projects;
+        self.projects = allProjects;
         self.updatesList = [];
 
         self.projects.forEach(function (project) {

@@ -1,12 +1,13 @@
-var express      = require('express');
-var path         = require('path');
-var favicon      = require('serve-favicon');
-var logger       = require('morgan');
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
+var bodyParser = require('body-parser');
 var multer = require('multer');
 require('email-existence');
 require('shortid');
+require('nodemailer');
 
 //package modules
 var mongoose = require('mongoose');
@@ -40,10 +41,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
 app.use(passport.initialize());
-
-
 app.use('/', routes);
 app.use('/users', users);
 

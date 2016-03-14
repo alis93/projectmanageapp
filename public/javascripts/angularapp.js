@@ -36,12 +36,7 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                         if (!auth.isLoggedIn()) {
                             $state.go('login');
                         }
-                    }],
-                    resolve: {
-                        projectsPromise: ['projectsFactory', function (projectsFactory) {
-                            return projectsFactory.getAllProjects();
-                        }]
-                    }
+                    }]
                 })
                 .state('updates',{
                     url: '/updates',
@@ -50,7 +45,7 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     controller: 'updatesController as updatesCtrl',
                     parent: 'root',
                     resolve: {
-                        projectsPromise: ['projectsFactory', function (projectsFactory) {
+                        allProjects: ['projectsFactory', function (projectsFactory) {
                             return projectsFactory.getAllProjects();
                         }]
                     }
@@ -72,12 +67,17 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     templateUrl: 'templates/projects.html',
                     data: {pageTitle: 'projects'},
                     controller: 'ProjectsController as projectsCtrl',
-                    parent: 'root'
-                    //resolve: {
-                    //    projectsPromise: ['projectsFactory', function (projectsFactory) {
-                    //        return projectsFactory.getAllProjects();
-                    //    }]
-                    //}
+                    parent: 'root',
+                    resolve: {
+                        allProjects: ['projectsFactory', function (projectsFactory) {
+                            return projectsFactory.getAllProjects();
+                        }],
+                        projectInvites: ['projectsFactory', function (projectsFactory) {
+                            return projectsFactory.getInvites();
+                        }]
+
+
+                    }
                 })
                 .state('newProject', {
                     url: '/new-project',
