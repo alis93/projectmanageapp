@@ -80,20 +80,6 @@ router.post('/login', function(req, res, next){
     })(req, res, next);
 });
 
-//get user's details, either this user or using supplied userid
-router.param('user_id', function (req, res, next, id) {
-    console.log('user ');
-    User.findById(id)
-        .populate('projects._id')
-        .exec(function (err, user) {
-            if (err) {
-                return next(err);
-            }
-            req.user = user;
-            return next();
-        });
-});
-
 //get all projects with pages populated
 router.get('/upcomingUserEvents', auth, function (req, res, next) {
     User.findById(req.payload._id, 'projects')
@@ -112,7 +98,7 @@ router.get('/upcomingUserEvents', auth, function (req, res, next) {
             user.projects.forEach(function (projectId) {
                 var project = projectId._id;
                 project.pages.forEach(function (page) {
-                    if (page.startDate && page.reminderDate && page.endDate) {
+                    if (page.startDate || page.reminderDate || page.endDate) {
                         var urlString = '/projects/' + project._id + '/pages/' + page._id;
                         if (page.startDate) {
                             eventList.push({
@@ -131,7 +117,7 @@ router.get('/upcomingUserEvents', auth, function (req, res, next) {
                         if (page.endDate) {
                             eventList.push({
                                 urlString: urlString,
-                                event: 'Page ' + page.title + ' is Due to Start ',
+                                event: 'Page ' + page.title + ' is Due to Complete ',
                                 date: page.endDate
                             });
                         }
@@ -148,6 +134,7 @@ router.get('/upcomingUserEvents', auth, function (req, res, next) {
             res.json(eventList);
         });
 });
+
 
 
 /* GET all projects belonging to a user */
@@ -633,8 +620,8 @@ router.put('/inviteResponse', auth, function (req, res, next) {
                                         })
                                     } else {
                                         res.json({msg: "you declined the project Invite"});
-                                    }
-                                });
+                                }
+                            });
                             });
                     });
                 } else {
@@ -689,3 +676,23 @@ function sendEmail(email, emailBody) {
         }
     });
 }
+
+
+//get user's details, either this user or using supplied userid
+router.param('userID', function (req, res, next, id) {
+    console.log('user ');
+    User.findById(id)
+        .populate('projects._id')
+        .exec(function (err, user) {
+            if (err) {
+                return next(err);
+            }
+            req.user = user;
+            return next();
+        });
+});
+
+
+router.get('/user/:userID', auth, function (req, res) {
+    res.json(req.user);
+});

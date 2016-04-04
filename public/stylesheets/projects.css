@@ -128,21 +128,15 @@
 }
 
 @media (min-width: 960px) {
-
     .invite-form {
         width: 70%;
-
     }
-
 }
 
-/*.page-view{*/
-/*display: none;*/
-/*}*/
+.user-profile-details {
+    margin: 8px;
+}
 
-/*@media (min-width: 1280px) {*/
+.user-projects {
 
-/*.page-view{*/
-/*display: inherit;*/
-/*}*/
-/*}*/
+}

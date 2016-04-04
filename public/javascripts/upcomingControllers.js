@@ -4,6 +4,7 @@
 angular.module("projectManager")
     .controller('upcomingController', ['upcomingUserEvents', '$state', function (upcomingUserEvents, $state) {
         var self = this;
+        //self.eventList = upcomingUserEvents;
         self.eventList = upcomingUserEvents.filter(function (event) {
             var now = Date.parse(new Date());
             var date = Date.parse(event.date);

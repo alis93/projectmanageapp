@@ -4,10 +4,10 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
         '$urlRouterProvider',
         function($stateProvider,$urlRouterProvider){
             $stateProvider
-                .state('home',{
-                    url: '/home',
-                    templateUrl: 'templates/home.html'
-                })
+            //.state('home',{
+            //    url: '/home',
+            //    templateUrl: 'templates/home.html'
+            //})
                 .state('login', {
                     url: '/login',
                     templateUrl: 'templates/login.html',
@@ -75,8 +75,6 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                         projectInvites: ['projectsFactory', function (projectsFactory) {
                             return projectsFactory.getInvites();
                         }]
-
-
                     }
                 })
                 .state('newProject', {
@@ -153,12 +151,20 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                     templateUrl: 'templates/team.html',
                     controller: 'TeamController as teamCtrl'
                 })
-
+                .state('user', {
+                    url: '/user/{userID}',
+                    templateUrl: 'templates/user.html',
+                    controller: 'UserController as userCtrl',
+                    parent: 'root',
+                    resolve: {
+                        user: ['teamFactory', '$stateParams', function (teamFactory, $stateParams) {
+                            return teamFactory.getUser($stateParams.userID);
+                        }]
+                    }
+                })
 
             ;
-
-
-            $urlRouterProvider.otherwise('login');
+            $urlRouterProvider.otherwise('updates');
         }
     ])
     .run([ '$rootScope', '$state', '$stateParams',

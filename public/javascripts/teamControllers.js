@@ -22,9 +22,8 @@ angular.module("projectManager")
         };
 
         self.goToMember = function (memberId) {
-            console.log('member id: ' + memberId);
             //TODO individual member pages
-            //$state.go(/to the user {userID:memberId});
+            $state.go('user', {userID: memberId});
         };
         //TODO CANCEL INVITES??
     }]);
