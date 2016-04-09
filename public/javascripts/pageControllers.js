@@ -1,6 +1,6 @@
 angular.module("projectManager")
 
-    .controller('PagesController', ['project', 'pagesFactory', '$state', '$mdToast', function (project, pagesFactory, $state, $mdToast) {
+    .controller('PagesController', ['project', 'pagesFactory', '$state', '$mdToast', '$mdDialog', function (project, pagesFactory, $state, $mdToast, $mdDialog) {
         var self = this;
         self.pages = project.pages;
         self.newPage = function () {
@@ -15,7 +15,6 @@ angular.module("projectManager")
         };
 
         self.delete = function (page) {
-
             pagesFactory.delete(project._id, page._id).then(function () {
                 var idx = self.pages.indexOf(page);
                 project.pages.splice(idx, 1);
@@ -32,22 +31,60 @@ angular.module("projectManager")
             });
         };
 
-        self.completed = function (page, isComplete) {
-            pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
-                page.completed = isComplete;
-                $mdToast.showSimple('You have completed this page');
-            });
+        self.completed = function (ev, page, isComplete) {
+
+
+            //TODO only person it is assigned to can complete, if it is assigned?, else whoever completes it assigns to them and completes
+
+
+            // Appending dialog to document.body to cover sidenav in docs app
+            var dialogContent = $mdDialog.show({
+                    targetEvent: ev,
+                    clickOutsideToClose: true,
+                    //scope: self,        // use parent scope in template
+                    preserveScope: true,  // do not forget this if use parent scope
+                    templateUrl: 'templates/completeTaskDialog.html',
+                    controller: function DialogController($scope, $mdDialog) {
+                        $scope.completed = {};
+                        $scope.completed.date = new Date();
+                        $scope.hide = function () {
+                            $mdDialog.hide();
+                        };
+                        $scope.cancel = function () {
+                            $mdDialog.cancel();
+                        };
+                        $scope.answer = function (answer) {
+                            $mdDialog.hide(answer);
+                        };
+                    }
+                })
+                .then(function (answer) {
+                    //TODO update the page to set date completed and hours taken
+                    //call function in pagesFactory( need to make) to set the hours and date
+                    //put the setcomplete method within the then part OR combine the two promises using $q.all
+                    pagesFactory.setCompletionDetails(project._id, page._id, answer).then(function (resp) {
+                        pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
+                            page.completed = isComplete;
+                            $mdToast.showSimple('You have completed this page');
+                        });
+                    });
+                });
         };
 
+        self.uncompleted = function (page, isComplete) {
+            pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
+                page.completed = isComplete;
+                $mdToast.showSimple('You have unarchived this page');
+            });
+        };
     }])
 
-    .controller('PageController', ['page', 'pagesFactory', '$mdToast', function (page, pagesFactory, $mdToast) {
+
+    .controller('PageController', ['page', 'project', 'pagesFactory', '$mdToast', function (page, project, pagesFactory, $mdToast) {
         var self = this;
         self.page = page;
         self.minDate = new Date();
-
-        console.log(page);
-
+        self.team = project.team;
 
         if (self.page.startDate) {
             self.page.startDate = new Date(Date.parse(self.page.startDate));

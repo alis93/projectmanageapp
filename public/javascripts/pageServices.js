@@ -43,6 +43,12 @@ angular.module("projectManager")
             });
         };
 
+        o.setCompletionDetails = function (projectId, pageId, completionData) {
+            return $http.put('/projects/' + projectId + '/pages/' + pageId + '/completionDetails', completionData, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            });
+        };
+
         o.delete = function (projectId, pageId) {
             return $http.delete('/projects/' + projectId + '/pages/' + pageId, {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}

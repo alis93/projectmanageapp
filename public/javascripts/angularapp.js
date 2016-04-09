@@ -120,12 +120,14 @@ angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'text
                                 $state.go('project.pages', {projectId: project._id});
                             }
                             var idx = -1;
+                            console.log(project);
                             for (var i = 0; i < project.pages.length; i++) {
                                 if (project.pages[i]._id == $stateParams.pageId) {
                                     idx = i;
                                     break;
                                 }
                             }
+
                             if (idx === -1) {
                                 console.log('projectId', project._id);
                                 $state.go('project.pages', {projectId: project._id});

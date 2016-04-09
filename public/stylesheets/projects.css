@@ -133,10 +133,47 @@
     }
 }
 
+.user-profile {
+    width: 100%;
+}
+
+.user-profile > img {
+    margin: 0 auto;
+}
+
+
 .user-profile-details {
     margin: 8px;
 }
 
-.user-projects {
+.user-page-list {
+    height: 292px;
+    width: 100%;
+}
 
+.user-project {
+    background-color: #fff;
+}
+
+@media (min-width: 600px) {
+    .user-profile {
+        width: 400px;
+    }
+
+    .user-page-list {
+        max-width: 400px;
+    }
+}
+
+.completed-task-form {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+}
+
+@media (min-width: 960px) {
+
+    .completed-task-form {
+        width: 50%;
+    }
 }

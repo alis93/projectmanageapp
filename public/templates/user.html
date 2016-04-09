@@ -1,14 +1,30 @@
-<div class="md-hue-2 md-whiteframe-z2" flex="100" flex-gt-md="25">
-    <div class="user-profile">
+<div class="md-hue-2 md-whiteframe-z2 user-profile">
         <img src="/images/one.png"/>
         <div layout="column" class="user-profile-details">
             <p>Name: {{userCtrl.user.name}}</p>
             <p>Email: {{userCtrl.user.email}}</p>
         </div>
-    </div>
+</div>
+
+<div id="user-projects-wrapper" ng-show="userCtrl.user.projects">
+    <span layout-margin class="md-headline"> Current Projects </span>
+    <md-virtual-repeat-container id="user-projects" class="user-page-list">
+        <div md-virtual-repeat="project in userCtrl.user.projects"
+             ng-click="userCtrl.loadProject(project)"
+             class="user-project md-whiteframe-1dp" layout-margin md-ink-ripple flex>
+            <p>{{project._id.title}}</p>
+        </div>
+    </md-virtual-repeat-container>
 </div>
 
 
-<div layout="column" class="user-projects" flex="50" ng-repeat="project in userCtrl.user.projects">
-    <div>{{project._id.title}}</div>
+<div id="user-tasks-wrapper" ng-show="userCtrl.assignedTasks">
+    <span layout-margin class="md-headline"> Current Tasks Assigned </span>
+    <md-virtual-repeat-container id="user-tasks" class="user-page-list">
+        <div md-virtual-repeat="task in userCtrl.assignedTasks"
+             ng-click="userCtrl.goToPage(task)"
+             class="user-project md-whiteframe-1dp" layout-margin md-ink-ripple flex>
+            <p>{{task.title}}</p>
+        </div>
+    </md-virtual-repeat-container>
 </div>

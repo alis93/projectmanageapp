@@ -7,7 +7,7 @@
                 <md-title layout-padding="">{{page.title}}</md-title>
                 <span flex=""></span>
                 <div layout="row" layout-align="end" class="page-item-options">
-                    <md-button class="md-icon-button" ng-click="pagesCtrl.completed(page,true)">
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.completed($event,page,true)">
                         <md-icon md-font-library="material-icons">done</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" ng-click="pagesCtrl.delete(page)">
@@ -26,7 +26,7 @@
                 <md-title layout-padding="">{{page.title}}</md-title>
                 <span flex=""></span>
                 <div layout="row" layout-align="end" class="page-item-options">
-                    <md-button class="md-icon-button" ng-click="pagesCtrl.completed(page,false)">
+                    <md-button class="md-icon-button" ng-click="pagesCtrl.uncompleted(page,false)">
                         <md-icon md-font-library="material-icons">done</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" ng-click="pagesCtrl.delete(page)">

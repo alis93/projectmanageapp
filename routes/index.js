@@ -209,7 +209,6 @@ router.param('project_id',function(req,res,next,id){
                 return next(new Error('can\'t find project'));
             }
             req.project = project;
-            //console.log(req.project);
             return next();
         });
 });
@@ -452,6 +451,19 @@ router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req,
 });
 
 
+router.put('/projects/:project_id/pages/:page_id/completionDetails', auth, function (req, res) {
+    req.page.dateCompleted = req.body.date;
+    req.page.hoursToComplete = req.body.hours;
+    req.page.completedBy = req.payload._id;
+    console.log(req.page);
+    req.page.save(function (err, page) {
+        if (err) {
+            return next();
+        }
+        res.json(page);
+    });
+});
+
 /* Post a comment to a page*/
 router.post('/projects/:project_id/pages/:page_id/comments', auth, function (req, res, next) {
     var newComment = new Comment(req.body);
@@ -548,7 +560,7 @@ router.put('/projects/:project_id/invite', auth, function (req, res, next) {
                 resp.newInvite = false;
                 resp.msg = "This email has already been sent an invite, but we have sent a reminder";
                 res.json(resp);
-                sendInvite(req.project._id, req.body.email); //send new invite TODO
+                sendInvite(req.project._id, req.body.email); //send new invite
             } else {
                 resp.newInvite = true;
                 resp.msg = "We have sent an invite to this email address";
@@ -682,7 +694,18 @@ function sendEmail(email, emailBody) {
 router.param('userID', function (req, res, next, id) {
     console.log('user ');
     User.findById(id)
-        .populate('projects._id')
+        .populate({
+            path: 'projects._id',
+            populate: {
+                path: 'pages',
+                model: Page,
+                populate: {
+                    path: 'assignedTo completedBy',
+                    model: User,
+                    select: 'name email'
+                }
+            }
+        })
         .exec(function (err, user) {
             if (err) {
                 return next(err);

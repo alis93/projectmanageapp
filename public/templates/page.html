@@ -8,6 +8,16 @@
                    ng-model="pageCtrl.page.title"/>
         </md-input-container>
 
+        <div layout="column">
+            <label>Assigned To : {{pageCtrl.page.assignedTo.name}}</label>
+            <md-input-container>
+                <label>Assign Task</label>
+                <md-select ng-model="pageCtrl.page.assignedTo">
+                    <md-option ng-repeat="member in pageCtrl.team" ng-value="member">{{member.name}}</md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+
         <div class="dates" layout="row" layout-align="space-around" layout-padding>
             <div layout="column" class="date-input-container" layout-align="space-between center">
                 <label class="md-caption">When will you start this?</label>
@@ -15,7 +25,7 @@
                                md-placeholder="Enter date"></md-datepicker>
             </div>
             <div layout="column" class="date-input-container" layout-align="space-between  center">
-                <label class="md-caption">When this due?</label>
+                <label class="md-caption">When is this due?</label>
                 <md-datepicker ng-model="pageCtrl.page.endDate" md-min-date="pageCtrl.minDate"
                                md-placeholder="Enter date"></md-datepicker>
             </div>
@@ -43,7 +53,6 @@
         <span class="md-body-1">{{comment.author}} Posted - {{comment.createdAt}}</span>
         <p class="md-body-2">{{comment.body}}</p>
         <md-divider layout-padding layout-margin></md-divider>
-
     </div>
 
 

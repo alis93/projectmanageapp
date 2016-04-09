@@ -1,0 +1,25 @@
+<mdDialog>
+    <form ng-submit="answer(completed)">
+        <md-dialog-content>
+            <h1 layout-padding class="md-display-2">How many hours did this take?</h1>
+            <md-input-container class="completed-task-form">
+                <label>Hours Taken</label>
+                <input type="number" ng-model="completed.hours" name="inputHours" required>
+            </md-input-container>
+            <div class="completed-task-form">
+                <label>Date Completed</label>
+
+                <md-datepicker ng-model="completed.date" name="inputDate" required></md-datepicker>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="cancel()">
+                cancel
+            </md-button>
+            <md-button type="submit" style="margin-right:20px;">
+                Complete
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</mdDialog>
