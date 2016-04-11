@@ -5,8 +5,11 @@
             <md-button ng-click="pagesCtrl.setAssignedFilter(true)">Assigned To me</md-button>
         </div>
         <md-list>
+
+
+            <!--filter:{assignedTo:pagesCtrl.assignFilter}-->
             <md-list-item layout="row"
-                          ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} | AssignedFilter:pagesCtrl.assignFilter:page "
+                          ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} | filter:pagesCtrl.AssignedFilter:pagesCtrl.assignFilter"
                           ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>

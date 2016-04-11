@@ -129,7 +129,6 @@ angular.module("projectManager")
                 endDate: project.endDate,
                 moreInfo: project.moreInfo
             }).then(function (resp) {
-                console.log(resp);
                 $mdToast.showSimple('Information Updated!');
             });
         };

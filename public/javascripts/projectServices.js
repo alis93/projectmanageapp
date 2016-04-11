@@ -43,7 +43,6 @@ angular.module("projectManager")
                 })
                 //remove .then stuff
                 .then(function (resp) {
-                    console.log(resp);
                 }, function (resp) {
                     console.log(resp);
                 });

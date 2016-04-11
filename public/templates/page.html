@@ -9,11 +9,15 @@
         </md-input-container>
 
         <div layout="column">
-            <label>Assigned To : {{pageCtrl.page.assignedTo.name}}</label>
+            <label ng-show="pageCtrl.page.assignedTo">Assigned To : {{pageCtrl.page.assignedTo.name}}</label>
+            <label ng-show="!pageCtrl.page.assignedTo">Assigned To : Unassigned</label>
             <md-input-container>
                 <label>Assign Task</label>
                 <md-select ng-model="pageCtrl.page.assignedTo">
-                    <md-option ng-repeat="member in pageCtrl.team" ng-value="member">{{member.name}}</md-option>
+                    <md-option ng-selected="!pageCtrl.page.assignedTo" ng-value="null">Unassigned</md-option>
+                    <md-option ng-selected="pageCtrl.page.assignedTo._id == member._id"
+                               ng-repeat="member in pageCtrl.team" ng-value="member">{{member.name}}
+                    </md-option>
                 </md-select>
             </md-input-container>
         </div>

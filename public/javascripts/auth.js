@@ -28,7 +28,7 @@ angular.module("projectManager")
                 var token = auth.getToken();
                 var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-                return {email: payload.email, name: payload.name};
+                return {email: payload.email, name: payload.name, _id: payload._id};
             }
         };
 
@@ -39,7 +39,6 @@ angular.module("projectManager")
         };
 
         auth.logIn = function (user) {
-            console.log("user " + user);
             return $http.post('/login', user).success(function (data) {
                 auth.saveToken(data.token);
             });

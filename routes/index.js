@@ -721,14 +721,19 @@ router.get('/user/:userID', auth, function (req, res) {
 
 router.get('/user/:userID/aggregate/completedTasksByDate', auth, function (req, res) {
     Page.aggregate([
-        //{ $match: {
-        //assignedTo:req.user._id
-        //    completed:true
-        //}
-        //},
+        {
+            $match: {
+                assignedTo: req.user._id,
+                completed: true
+            }
+        },
         {
             $group: {
-                _id: {month: {$month: "$createdAt"}, day: {$dayOfMonth: "$createdAt"}, year: {$year: "$createdAt"}},
+                _id: {
+                    month: {$month: "$dateCompleted"},
+                    day: {$dayOfMonth: "$dateCompleted"},
+                    year: {$year: "$dateCompleted"}
+                },
                 count: {$sum: 1}
             }
         }, {$sort: {_id: 1}}], function (err, result) {

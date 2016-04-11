@@ -1,15 +1,23 @@
 angular.module("projectManager")
 
-    .controller('PagesController', ['project', 'pagesFactory', '$state', '$mdToast', '$mdDialog', function (project, pagesFactory, $state, $mdToast, $mdDialog) {
+    .controller('PagesController', ['project', 'pagesFactory', '$state', '$mdToast', '$mdDialog', 'auth', function (project, pagesFactory, $state, $mdToast, $mdDialog, auth) {
         var self = this;
         self.pages = project.pages;
+        self.assignFilter = false;
 
-        self.assignFilter = true;
 
         self.setAssignedFilter = function (isAssigned) {
-            self.assignFilter = isAssigned;
-            console.log(self.assignFilter);
-
+            isAssigned ? self.assignFilter = true : self.assignFilter = false;
+        };
+        self.AssignedFilter = function (page) {
+            if (!self.assignFilter) {
+                return page;
+            }
+            if (page.assignedTo) {
+                if (page.assignedTo._id == auth.currentUser()._id) {
+                    return page;
+                }
+            }
         };
 
         self.newPage = function () {
@@ -95,6 +103,7 @@ angular.module("projectManager")
         self.minDate = new Date();
         self.team = project.team;
 
+
         if (self.page.startDate) {
             self.page.startDate = new Date(Date.parse(self.page.startDate));
         }
@@ -135,18 +144,5 @@ angular.module("projectManager")
         };
 
     }])
-
-    .filter('AssignedFilter', function () {
-        return function (assignedTo, isFiltered) {
-            console.log(isFiltered);
-            console.log(assignedTo);
-            //if(!isFiltered){
-            return assignedTo;
-            //}
-        }
-    })
-
-
 ;
-
 
