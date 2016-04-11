@@ -1,7 +1,12 @@
 <div layout="row">
     <div flex="100" flex-gt-md="40" layout="column" class="page-list">
+        <div layout="row">
+            <md-button ng-click="pagesCtrl.setAssignedFilter(false)">All</md-button>
+            <md-button ng-click="pagesCtrl.setAssignedFilter(true)">Assigned To me</md-button>
+        </div>
         <md-list>
-            <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} "
+            <md-list-item layout="row"
+                          ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} | AssignedFilter:pagesCtrl.assignFilter:page "
                           ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>

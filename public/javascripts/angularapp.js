@@ -1,4 +1,4 @@
-angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'textAngular', 'ngFileUpload'])
+angular.module("projectManager", ['ui.router', 'ngMaterial', 'ngMessages', 'textAngular', 'ngFileUpload', 'highcharts-ng', 'angularMoment'])
     .config([
         '$stateProvider',
         '$urlRouterProvider',

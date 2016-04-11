@@ -269,7 +269,6 @@ router.route('/projects/:project_id')
                 res.json(req.project);
         });
     });
-
 //archive project
 router.put('/projects/:project_id/archive', auth, function (req, res) {
     req.project.setProjectArchived(req.body.isArchived, function (err, project) {
@@ -718,4 +717,25 @@ router.param('userID', function (req, res, next, id) {
 
 router.get('/user/:userID', auth, function (req, res) {
     res.json(req.user);
+});
+
+router.get('/user/:userID/aggregate/completedTasksByDate', auth, function (req, res) {
+    Page.aggregate([
+        //{ $match: {
+        //assignedTo:req.user._id
+        //    completed:true
+        //}
+        //},
+        {
+            $group: {
+                _id: {month: {$month: "$createdAt"}, day: {$dayOfMonth: "$createdAt"}, year: {$year: "$createdAt"}},
+                count: {$sum: 1}
+            }
+        }, {$sort: {_id: 1}}], function (err, result) {
+        if (err) {
+            console.log(err);
+        }
+        console.log(result);
+        res.json(result);
+    });
 });

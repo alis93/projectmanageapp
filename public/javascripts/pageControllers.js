@@ -3,6 +3,15 @@ angular.module("projectManager")
     .controller('PagesController', ['project', 'pagesFactory', '$state', '$mdToast', '$mdDialog', function (project, pagesFactory, $state, $mdToast, $mdDialog) {
         var self = this;
         self.pages = project.pages;
+
+        self.assignFilter = true;
+
+        self.setAssignedFilter = function (isAssigned) {
+            self.assignFilter = isAssigned;
+            console.log(self.assignFilter);
+
+        };
+
         self.newPage = function () {
             pagesFactory.newPage(project._id).then(function (newPage) {
                 project.pages.push(newPage);
@@ -125,4 +134,19 @@ angular.module("projectManager")
                 });
         };
 
-    }]);
+    }])
+
+    .filter('AssignedFilter', function () {
+        return function (assignedTo, isFiltered) {
+            console.log(isFiltered);
+            console.log(assignedTo);
+            //if(!isFiltered){
+            return assignedTo;
+            //}
+        }
+    })
+
+
+;
+
+
