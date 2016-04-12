@@ -254,9 +254,9 @@ router.route('/projects/:project_id')
         User.findOneAndUpdate({_id: req.payload._id},
             {$pull: {projects: {_id: req.project._id}}}, {new: true})
             .exec(function (err, user) {
-                console.log("err:" + err);
-                console.log("user:" + user);
-                    if(err){return next(err);}
+                if (err) {
+                    return next(err);
+                }
                 var index = req.project.team.findIndex(function (member) {
                     return user._id.toString() == member._id.toString();
                 });
@@ -267,7 +267,54 @@ router.route('/projects/:project_id')
                         });
                 }
                 res.json(req.project);
-        });
+                //TODO unassign tasks assigned to this user from the project
+                //Page.find({project:req.project._id,assignedTo:user._id})
+                //    .remove()
+                //    .exec(function (err,pages) {
+                //console.log("PAGES!!!!",pages);
+                //pages.assignedTo = null;
+                //pages.save(function (err) {
+                //    if(err){return next;}
+                Page.aggregate([
+                    {
+                        $match: {
+                            project: req.project._id,
+                            assignedTo: user._id,
+                            completed: false
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$assignedTo',
+                            count: {$sum: 1}
+                        }
+                    }], function (err, result) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    if (result.length > 0) {
+                        var current = result[0];
+                        (function (current) {
+                            User.findById(current._id).exec(function (err, user) {
+                                if (err) {
+                                    return next();
+                                }
+                                user.decrementNumTasks(current.count, function (err) {
+                                    if (err) {
+                                        return next();
+                                    }
+                                });
+                            });
+                        }(current));
+                    }
+                });
+
+
+                //});
+                //});
+
+
+            });
     });
 //archive project
 router.put('/projects/:project_id/archive', auth, function (req, res) {
@@ -303,6 +350,50 @@ router.put('/projects/:project_id/archive', auth, function (req, res) {
             var respStr = 'The project is now';
             respStr = respStr + (project.archived ? 'Archived' : 'Active');
             res.json(respStr);
+
+            ////TODO same for deleting project
+            Page.aggregate([
+                {
+                    $match: {
+                        project: req.project._id,
+                        completed: false
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$assignedTo',
+                        count: {$sum: 1}
+                    }
+                }], function (err, result) {
+                if (err) {
+                    console.log(err);
+                }
+                for (var i = 0; i < result.length; i++) {
+                    var current = result[i];
+                    if (current._id) {
+                        (function (current) {
+                            User.findById(current._id).exec(function (err, user) {
+                                if (err) {
+                                    return next();
+                                }
+                                if (req.body.isArchived) {
+                                    user.decrementNumTasks(current.count, function (err) {
+                                        if (err) {
+                                            return next();
+                                        }
+                                    });
+                                } else {
+                                    user.incrementNumTasks(current.count, function (err) {
+                                        if (err) {
+                                            return next();
+                                        }
+                                    });
+                                }
+                            });
+                        }(current));
+                    }
+                }
+            });
         });
     });
 });
@@ -406,10 +497,15 @@ router.route('/projects/:project_id/pages/:page_id')
         });
     })
 
-
-
     //add update here
-    .put(auth, function (req, res) {
+    .put(auth, function (req, res, next) {
+        var previouslyAssigned = req.page.assignedTo || '';
+        var nowAssigned = '';
+        if (req.body.assignedTo) {
+            nowAssigned = req.body.assignedTo._id;
+        }
+
+
         req.page.title = req.body.title;
         req.page.description = req.body.description;
         req.page.assignedTo = req.body.assignedTo;
@@ -422,6 +518,20 @@ router.route('/projects/:project_id/pages/:page_id')
                 return next(err);
             }
             res.json(page);
+            if (previouslyAssigned.toString() !== nowAssigned.toString()
+                && !req.page.completed) {
+                User.findById(req.body.assignedTo).exec(function (err, user) {
+                    if (err) {
+                        return next();
+                    }
+                    user.incrementNumTasks(1, function (err) {
+                        if (err) {
+                            return next();
+                        }
+                        console.log(user);
+                    });
+                });
+            }
         });
     });
 
@@ -431,7 +541,6 @@ router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req,
         if (err) {
             return next();
         }
-
         req.project.updates.push({
             urlString: "/projects/" + req.project._id + "/pages",
             updatedBy: req.payload._id,
@@ -444,8 +553,35 @@ router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req,
                 return next();
             }
             res.json(page);
-        });
+            if (req.page.assignedTo) {
+                User.findById(req.page.assignedTo).exec(function (err, user) {
+                    if (err) {
+                        return next();
+                    }
+                    if (req.page.completed) {
+                        user.decrementNumTasks(1, function (err) {
+                            if (err) {
+                                return next();
+                            }
+                            console.log(user);
+                        });
+                    } else {
+                        user.incrementNumTasks(1, function (err) {
+                            if (err) {
+                                return next();
+                            }
+                            console.log(user);
+                        });
+                    }
+                });
 
+            }
+
+
+
+
+
+        });
     });
 });
 
@@ -454,7 +590,7 @@ router.put('/projects/:project_id/pages/:page_id/completionDetails', auth, funct
     req.page.dateCompleted = req.body.date;
     req.page.hoursToComplete = req.body.hours;
     req.page.completedBy = req.payload._id;
-    console.log(req.page);
+
     req.page.save(function (err, page) {
         if (err) {
             return next();
@@ -741,6 +877,37 @@ router.get('/user/:userID/aggregate/completedTasksByDate', auth, function (req, 
             console.log(err);
         }
         console.log(result);
+        res.json(result);
+    });
+});
+
+router.get('/user/:userID/aggregate/AssignedTasksByDate', auth, function (req, res) {
+
+//console.log(req.user.tasksAssigned);
+//    res.json(req.user.tasksAssigned);
+
+    User.aggregate([
+        {
+            $match: {
+                _id: req.user._id
+                //completed: false
+            }
+        },
+        {$unwind: {path: '$tasksAssigned'}},
+        {
+            $group: {
+                _id: {
+                    month: {$month: "$tasksAssigned.date"},
+                    day: {$dayOfMonth: "$tasksAssigned.date"},
+                    year: {$year: "$tasksAssigned.date"}
+                },
+                count: {$first: '$tasksAssigned.numTasks'}
+            }
+        }, {$sort: {_id: 1}}], function (err, result) {
+        if (err) {
+            console.log(err);
+        }
+        console.log("assignedStuff", result);
         res.json(result);
     });
 });

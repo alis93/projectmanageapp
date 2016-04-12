@@ -79,8 +79,8 @@ angular.module("projectManager")
                     //TODO update the page to set date completed and hours taken
                     //call function in pagesFactory( need to make) to set the hours and date
                     //put the setcomplete method within the then part OR combine the two promises using $q.all
-                    pagesFactory.setCompletionDetails(project._id, page._id, answer).then(function (resp) {
-                        pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
+                    pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
+                        pagesFactory.setCompletionDetails(project._id, page._id, answer).then(function (resp) {
                             page.completed = isComplete;
                             $mdToast.showSimple('You have completed this page');
                         });

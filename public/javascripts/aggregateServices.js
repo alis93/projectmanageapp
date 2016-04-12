@@ -17,5 +17,13 @@ angular.module("projectManager")
                 return data.data;
             });
         };
+
+        o.getAssignedTasksByDate = function (userID) {
+            return $http.get('user/' + userID + '/aggregate/AssignedTasksByDate', {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            });
+        };
         return o;
     }]);

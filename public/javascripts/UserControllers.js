@@ -28,7 +28,7 @@ angular.module("projectManager")
                 return [Date.UTC(item._id.year, item._id.month - 1, item._id.day), item.count]
             });
 
-            self.chartConfig = {
+            self.completedByDateConfig = {
                 options: {
                     chart: {
                         type: 'column',
@@ -59,8 +59,44 @@ angular.module("projectManager")
                     data: completedTasksByDate
                 }]
             };
+        });
 
+        UserAggregateFactory.getAssignedTasksByDate(user._id).then(function (resp) {
+            var assignedTasksByDate = resp.map(function (item) {
+                return [Date.UTC(item._id.year, item._id.month - 1, item._id.day), item.count]
+            });
 
+            self.assignedByDateConfig = {
+                options: {
+                    chart: {
+                        type: 'column',
+                        zoomType: 'x'
+                    }
+                },
+                title: {
+                    text: 'Assigned tasks by Date'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Assigned Tasks'
+                    },
+                    min: 0
+                },
+                series: [{
+                    name: "tasks Assigned",
+                    data: assignedTasksByDate
+                }]
+            };
         });
 
         self.loadProject = function (project) {

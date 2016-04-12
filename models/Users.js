@@ -17,6 +17,10 @@ var UserSchema = new mongoose.Schema({
             ref: 'Project'
         },
         pinned: {type: Boolean, default: false}
+    }],
+    tasksAssigned: [{
+        date: {type: Date},
+        numTasks: {type: Number}
     }]
 });
 
@@ -52,5 +56,60 @@ UserSchema.methods.generateJWT = function(){
         exp: parseInt(exp.getTime() / 1000)
     }, 'SECRET');//use environment variable to store 'SECRET'
 };
+
+UserSchema.methods.incrementNumTasks = function (numTasksToAdd, cb) {
+    var today = new Date();
+    var index = this.tasksAssigned.length - 1;
+
+    console.log("num tasks to add", numTasksToAdd);
+
+    if (index == -1) {
+        this.tasksAssigned.push({date: today, numTasks: numTasksToAdd});
+    } else {
+        var lastEntry = this.tasksAssigned[index];
+        if (lastEntry.date.getUTCDate() == today.getUTCDate()
+            && lastEntry.date.getUTCMonth() == today.getUTCMonth()
+            && lastEntry.date.getUTCFullYear() == today.getUTCFullYear()
+        ) {
+            lastEntry.numTasks += numTasksToAdd;
+        } else {
+            var numTasks = (lastEntry.numTasks || 0) + numTasksToAdd;
+            this.tasksAssigned.push({date: today, numTasks: numTasks});
+        }
+    }
+    console.log("tasksAssigned", this.tasksAssigned);
+    this.save(cb);
+};
+
+
+UserSchema.methods.decrementNumTasks = function (numTasksTosubtract, cb) {
+    var today = new Date();
+    var index = this.tasksAssigned.length - 1;
+    var lastEntry = this.tasksAssigned[index];
+
+    console.log("num tasks to subtract", numTasksTosubtract);
+
+    if (lastEntry.date.getUTCDate() == today.getUTCDate()
+        && lastEntry.date.getUTCMonth() == today.getUTCMonth()
+        && lastEntry.date.getUTCFullYear() == today.getUTCFullYear()
+    ) {
+        lastEntry.numTasks -= numTasksTosubtract;
+        if (lastEntry.numTasks < 0) {
+            lastEntry.numTasks = 0;
+        }
+    } else {
+        lastEntry.numTasks -= numTasksTosubtract;
+        if (lastEntry.numTasks < 0) {
+            lastEntry.numTasks = 0;
+        }
+
+        this.tasksAssigned.push({date: today, numTasks: numTasks});
+    }
+
+    console.log("tasksAssigned", this.tasksAssigned);
+    this.save(cb);
+};
+
+
 
 mongoose.model('User',UserSchema);
