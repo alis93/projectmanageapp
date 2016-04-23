@@ -32,7 +32,8 @@ angular.module("projectManager")
                 options: {
                     chart: {
                         type: 'column',
-                        zoomType: 'x'
+                        zoomType: 'x',
+                        renderTo: 'chartcontainer'
                     }
                 },
                 title: {
@@ -61,16 +62,20 @@ angular.module("projectManager")
             };
         });
 
+
+        //TODO - test this graph after few days when more data available
         UserAggregateFactory.getAssignedTasksByDate(user._id).then(function (resp) {
             var assignedTasksByDate = resp.map(function (item) {
                 return [Date.UTC(item._id.year, item._id.month - 1, item._id.day), item.count]
             });
 
             self.assignedByDateConfig = {
+
                 options: {
                     chart: {
                         type: 'column',
-                        zoomType: 'x'
+                        zoomType: 'x',
+                        renderTo: 'chartcontainer'
                     }
                 },
                 title: {

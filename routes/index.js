@@ -248,7 +248,7 @@ router.route('/projects/:project_id')
     //delete a specific project
     .delete(auth, function (req, res, next) {
         console.log("DELETE!!");
-        //if last member in project.team then remove project completely - TODO
+        //TODO if last member in project.team then remove project completely
         //also if last member in project.team then remove project invites using the id
         //else remove from the user project list only and project.team -DONE
         User.findOneAndUpdate({_id: req.payload._id},
@@ -350,8 +350,6 @@ router.put('/projects/:project_id/archive', auth, function (req, res) {
             var respStr = 'The project is now';
             respStr = respStr + (project.archived ? 'Archived' : 'Active');
             res.json(respStr);
-
-            ////TODO same for deleting project
             Page.aggregate([
                 {
                     $match: {
@@ -876,7 +874,7 @@ router.get('/user/:userID/aggregate/completedTasksByDate', auth, function (req, 
         if (err) {
             console.log(err);
         }
-        console.log(result);
+        console.log("completedStuff", result);
         res.json(result);
     });
 });
@@ -885,7 +883,6 @@ router.get('/user/:userID/aggregate/AssignedTasksByDate', auth, function (req, r
 
 //console.log(req.user.tasksAssigned);
 //    res.json(req.user.tasksAssigned);
-
     User.aggregate([
         {
             $match: {

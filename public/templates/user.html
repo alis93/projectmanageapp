@@ -1,4 +1,4 @@
-<div layout="column" layout-gt-xs="row">
+<div layout="column" layout-gt-sm="row">
     <div id="user-page-left" layout="column">
         <div class="md-hue-2 md-whiteframe-z2 user-profile">
             <img src="/images/one.png"/>
@@ -32,8 +32,11 @@
         </div>
     </div>
 
-    <div layout-margin>
-        <highchart id="chart1" config="userCtrl.completedByDateConfig"></highchart>
-        <highchart id="chart2" config="userCtrl.assignedByDateConfig"></highchart>
+
+    <div id="graph-container" layout-margin>
+        <!--<div id="col-1" layout-margin>-->
+        <highchart config="userCtrl.completedByDateConfig"></highchart>
+        <highchart id="chart3" config="userCtrl.assignedByDateConfig"></highchart>
+        <!--</div>-->
     </div>
 </div>

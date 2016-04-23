@@ -89,6 +89,8 @@ UserSchema.methods.decrementNumTasks = function (numTasksTosubtract, cb) {
 
     console.log("num tasks to subtract", numTasksTosubtract);
 
+    console.log(lastEntry);
+
     if (lastEntry.date.getUTCDate() == today.getUTCDate()
         && lastEntry.date.getUTCMonth() == today.getUTCMonth()
         && lastEntry.date.getUTCFullYear() == today.getUTCFullYear()
@@ -98,7 +100,8 @@ UserSchema.methods.decrementNumTasks = function (numTasksTosubtract, cb) {
             lastEntry.numTasks = 0;
         }
     } else {
-        lastEntry.numTasks -= numTasksTosubtract;
+
+        var numTasks = (lastEntry.numTasks || 0) - numTasksTosubtract;
         if (lastEntry.numTasks < 0) {
             lastEntry.numTasks = 0;
         }
