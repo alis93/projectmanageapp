@@ -12,16 +12,10 @@ var UserSchema = new mongoose.Schema({
     hash:String,
     salt:String,
     projects:[{
-        _id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Project'
-        },
+        _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Project'},
         pinned: {type: Boolean, default: false}
     }],
-    tasksAssigned: [{
-        date: {type: Date},
-        numTasks: {type: Number}
-    }]
+    tasksAssigned: [{date: {type: Date}, numTasks: {type: Number}}]
 });
 
 UserSchema.methods.setPinnedProject = function (projectId, isPinned, cb) {

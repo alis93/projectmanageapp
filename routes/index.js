@@ -503,7 +503,6 @@ router.route('/projects/:project_id/pages/:page_id')
             nowAssigned = req.body.assignedTo._id;
         }
 
-
         req.page.title = req.body.title;
         req.page.description = req.body.description;
         req.page.assignedTo = req.body.assignedTo;
@@ -822,7 +821,6 @@ function sendEmail(email, emailBody) {
     });
 }
 
-
 //get user's details, either this user or using supplied userid
 router.param('userID', function (req, res, next, id) {
     console.log('user ');
@@ -847,7 +845,6 @@ router.param('userID', function (req, res, next, id) {
             return next();
         });
 });
-
 
 router.get('/user/:userID', auth, function (req, res) {
     res.json(req.user);
@@ -881,8 +878,6 @@ router.get('/user/:userID/aggregate/completedTasksByDate', auth, function (req, 
 
 router.get('/user/:userID/aggregate/AssignedTasksByDate', auth, function (req, res) {
 
-//console.log(req.user.tasksAssigned);
-//    res.json(req.user.tasksAssigned);
     User.aggregate([
         {
             $match: {
@@ -908,3 +903,52 @@ router.get('/user/:userID/aggregate/AssignedTasksByDate', auth, function (req, r
         res.json(result);
     });
 });
+
+
+router.get('/project/:project_id/aggregate/totalHoursByUser', auth, function (req, res) {
+
+    Page.aggregate([
+        {
+            $match: {
+                project: req.project._id,
+                completed: true,
+                hoursToComplete: {$exists: true},
+                dateCompleted: {$exists: true}
+            }
+        },
+        {
+            $project: {
+                completedBy: {$ifNull: ["$completedBy", 'unknown']},
+                hoursToComplete: '$hoursToComplete',
+                dateCompleted: '$dateCompleted'
+            }
+        },
+        {
+            $group: {
+                _id: "$completedBy",
+                count: {$sum: "$hoursToComplete"},
+                date: {
+                    $addToSet: {
+                        month: {$month: "$dateCompleted"},
+                        day: {$dayOfMonth: "$dateCompleted"},
+                        year: {$year: "$dateCompleted"}
+                    }
+                }
+
+
+            }
+        }], function (err, result) {
+        if (err) {
+            console.log(err);
+        }
+        console.log("completedStuff", result);
+        res.json(result);
+    });
+});
+
+//
+//{
+//    month: {$month: "$dateCompleted"},
+//    day: {$dayOfMonth: "$dateCompleted"},
+//    year: {$year: "$dateCompleted"}
+//}

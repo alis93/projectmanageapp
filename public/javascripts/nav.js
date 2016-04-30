@@ -25,12 +25,12 @@ angular.module("projectManager")
 .factory('navItems',[function(){
     return {
         items:[
-            { link : 'pages',title: 'Pages',icon: 'dashboard' },
+            //{ link : 'pages',title: 'Pages',icon: 'dashboard' },
             { link : 'projects',title: 'Projects',icon: 'folder'},
             { link : 'updates',title: 'Updates',icon: 'update' },
-            { link : 'upcoming',title: 'Upcoming',icon: 'flag' },
-            { link : 'calendar',title: 'Calendar',icon: 'date_range' },
-            {link: 'timeline', title: 'Timeline', icon: 'timeline'}
+            {link: 'upcoming', title: 'Upcoming', icon: 'flag'}
+            //{ link : 'calendar',title: 'Calendar',icon: 'date_range' },
+            //{link: 'timeline', title: 'Timeline', icon: 'timeline'}
         ],
         //pinned projects array??
         pinned: [{}]

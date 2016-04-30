@@ -73,7 +73,7 @@ angular.module("projectManager")
 
                 options: {
                     chart: {
-                        type: 'column',
+                        type: 'line',
                         zoomType: 'x',
                         renderTo: 'chartcontainer'
                     }
@@ -99,7 +99,8 @@ angular.module("projectManager")
                 },
                 series: [{
                     name: "tasks Assigned",
-                    data: assignedTasksByDate
+                    data: assignedTasksByDate,
+                    step: 'centre'
                 }]
             };
         });

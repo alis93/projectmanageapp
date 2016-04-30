@@ -110,6 +110,5 @@ angular.module("projectManager")
             });
         };
 
-
         return obj;
     }]);

@@ -15,6 +15,7 @@ angular.module("projectManager")
             }
         });
 
+
         self.goToLink = function (urlString) {
             //replace match with split at / and use
             //resultant array? ie split at /

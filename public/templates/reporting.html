@@ -1,0 +1,41 @@
+<div>
+
+
+    <div layout-margin>
+        <highchart config="reportCtrl.completedByDateConfig"></highchart>
+        <highchart config="reportCtrl.totalTasksByUser"></highchart>
+    </div>
+
+
+    <div>
+        <label>Currently showing :</label>
+        <md-input-container>
+            <md-select ng-model="reportCtrl.selectedUser">
+                <md-option ng-selected="reportCtrl.selectedUser._id == member._id"
+                           ng-repeat="member in reportCtrl.project.team" ng-value="member">{{member.name}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+
+
+    <table style="width:100%">
+        <tr>
+            <th>Task name</th>
+            <th>Date completed</th>
+            <th>Hours to complete</th>
+        </tr>
+        <tr ng-repeat="task in reportCtrl.tasks | filter:reportCtrl.selectedUser._id">
+            <td>{{task.title}}</td>
+            <td>{{task.dateCompleted | date : "dd.MM.yy"}}</td>
+            <td>{{task.hoursToComplete}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td id="total-hours-heading">Total Hours</td>
+            <td id="total-hours-val">{{reportCtrl.totalHours}}</td>
+        </tr>
+    </table>
+
+
+</div>

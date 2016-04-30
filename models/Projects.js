@@ -13,13 +13,9 @@ var ProjectSchema = new mongoose.Schema({
         moreInfo: [{
             "label": {type: String},
             "value": {type: String}
-        }],
-    pages:[{
-            type: mongoose.Schema.Types.ObjectId,
-        ref: 'Page'
     }],
+        pages: [{type: mongoose.Schema.Types.ObjectId, ref: 'Page'}],
         archived: {type: Boolean, default: false},
-        //    difficultyTags[{}], //used for tags when predicting how long will take to complete
         team: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], //other users on the project
         pendingEmails: [{type: String}], //other users on the project
         files: [{

@@ -102,7 +102,7 @@
 }
 
 .page-description .ta-editor {
-    min-height: 500px !important;
+    min-height: 300px !important;
     height: auto;
     overflow: auto;
     font-family: inherit;
@@ -155,6 +155,11 @@
     background-color: #fff;
 }
 
+#filter-buttons {
+    display: block;
+    clear: both;
+}
+
 @media (min-width: 600px) {
     .user-profile {
         width: 400px;
@@ -176,4 +181,28 @@
     .completed-task-form {
         width: 50%;
     }
+}
+
+table {
+    text-align: center;
+
+}
+
+th {
+    text-align: center;
+    outline: thin solid black;
+}
+
+#total-hours-heading {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-collapse: collapse;
+}
+
+#total-hours-val {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+    border-collapse: collapse;
 }

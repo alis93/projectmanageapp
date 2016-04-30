@@ -74,10 +74,8 @@ angular.module("projectManager")
         };
 
         self.createProject = function () {
-
             projectsFactory.createProject(self.file, self.project)
                 .then(function () {
-
                     $state.go('projects');
                     }, function (resp) {
                         console.log('Error status: ' + resp.status);
