@@ -10,30 +10,35 @@ angular.module("projectManager")
         self.selectedUser = project.team[0];
         self.tasks = project.pages;
 
-
-        self.totalHours = project.pages.reduce(function (prev, curr) {
-            if (curr.completedBy == self.selectedUser._id) {
-                if (isNaN(curr.hoursToComplete)) {
-                    return prev;
-                } else {
-                    return {hoursToComplete: prev.hoursToComplete + curr.hoursToComplete};
+        self.getTotalHours = function () {
+            var total = 0;
+            for (var i = 0; i < project.pages.length; i++) {
+                if (project.pages[i].completedBy == self.selectedUser._id) {
+                    total += project.pages[i].hoursToComplete;
                 }
-            } else {
-                return prev;
             }
-        }).hoursToComplete;
+            return total;
+        };
+
+
 
         UserAggregateFactory.totalHoursByUser(project._id).then(function (resp) {
 
 
-            console.log('resp', resp);
+            var seriesData = [];
 
-
-            var data = resp.map(function (item) {
+            resp.forEach(function (item) {
                 var user = project.team.find(function (user) {
-                    return user._id == this._id;
-                }, item);
-                return {name: user.name, data: [item.count]};
+                    return user._id == this;
+                }, item._id);
+
+                var data = item.info.map(function (infoItem) {
+                    console.log('day', infoItem.date.day);
+                    return [Date.UTC(infoItem.date.year, infoItem.date.month - 1, infoItem.date.day), infoItem.count];
+                });
+
+                seriesData.push({name: user.name, data: data});
+
             });
 
             self.completedByDateConfig = {
@@ -42,15 +47,32 @@ angular.module("projectManager")
                         type: 'column',
                         zoomType: 'x',
                         renderTo: 'chartcontainer'
+                    },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            dataLabels: {
+                                enabled: true,
+                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                                style: {
+                                    textShadow: '0 0 3px black'
+                                }
+                            }
+                        }
                     }
                 },
                 title: {
                     text: 'Hours Worked on the project by user'
                 },
                 xAxis: {
-                    categories: project.team,
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    },
+                    //tickInterval: 3600 * 24 * 1000,
                     title: {
-                        text: 'User'
+                        text: 'Date'
                     }
                 },
                 yAxis: {
@@ -59,45 +81,14 @@ angular.module("projectManager")
                     },
                     min: 0
                 },
-                series: data
+                series: seriesData
             };
         });
 
 
-        UserAggregateFactory.totalTasksByUser(project._id).then(function (resp) {
-            var data = resp.map(function (item) {
-                var user = project.team.find(function (user) {
-                    return user._id == this._id;
-                }, item);
-                return {name: user.name, data: [item.count]};
-            });
-
-            self.totalTasksByUser = {
-                options: {
-                    chart: {
-                        type: 'column',
-                        zoomType: 'x',
-                        renderTo: 'chartcontainer'
-                    }
-                },
-                title: {
-                    text: 'Total tasks completed in the project by user'
-                },
-                xAxis: {
-                    categories: project.team,
-                    title: {
-                        text: 'User'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Hours input'
-                    },
-                    min: 0
-                },
-                series: data
-            };
-        });
+        self.orderByDate = function (item) {
+            return new Date(item.dateCompleted);
+        };
 
 
     }]);

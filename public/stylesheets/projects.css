@@ -183,24 +183,33 @@
     }
 }
 
-table {
-    text-align: center;
-
+.report-table {
+    /*overflow-x:auto;*/
+    background-color: #fff;
 }
 
-th {
+.report-table table {
+    text-align: center;
+    width: 100%;
+}
+
+.report-table td {
+    margin: 8px;
+}
+
+.report-table th {
     text-align: center;
     outline: thin solid black;
 }
 
-#total-hours-heading {
+.report-table #total-hours-heading {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
     border-left: 1px solid black;
     border-collapse: collapse;
 }
 
-#total-hours-val {
+.report-table #total-hours-val {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
     border-right: 1px solid black;

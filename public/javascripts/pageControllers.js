@@ -5,16 +5,15 @@ angular.module("projectManager")
         self.pages = project.pages;
         self.assignFilter = false;
 
+        self.project = project;
+        self.selectedUser = null;
 
-        self.setAssignedFilter = function (isAssigned) {
-            isAssigned ? self.assignFilter = true : self.assignFilter = false;
-        };
         self.AssignedFilter = function (page) {
-            if (!self.assignFilter) {
+            if (!self.selectedUser) {
                 return page;
             }
             if (page.assignedTo) {
-                if (page.assignedTo._id == auth.currentUser()._id) {
+                if (page.assignedTo._id == self.selectedUser._id) {
                     return page;
                 }
             }
@@ -82,6 +81,9 @@ angular.module("projectManager")
                     pagesFactory.setComplete(project._id, page._id, {isComplete: isComplete}).then(function (resp) {
                         pagesFactory.setCompletionDetails(project._id, page._id, answer).then(function (resp) {
                             page.completed = isComplete;
+                            page.completedBy = resp.completedBy;
+                            page.dateCompleted =
+                                page.hoursToComplete = resp.hoursToComplete;
                             $mdToast.showSimple('You have completed this page');
                         });
                     });

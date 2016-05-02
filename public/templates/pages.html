@@ -1,15 +1,25 @@
 <div layout="row">
     <div flex="100" flex-gt-md="40" layout="column" class="page-list">
         <div id="filter-buttons" layout="row">
-            <md-button ng-click="pagesCtrl.setAssignedFilter(false)">All</md-button>
-            <md-button ng-click="pagesCtrl.setAssignedFilter(true)">Assigned To me</md-button>
+            <!--<md-button ng-click="pagesCtrl.selectedUser=''">All</md-button>-->
+            <div>
+                <label>Assigned To :</label>
+                <md-input-container>
+                    <md-select ng-model="pagesCtrl.selectedUser">
+                        <md-option ng-selected="!pagesCtrl.selectedUser._id" ng-value="null">All</md-option>
+                        <md-option ng-selected="pagesCtrl.selectedUser._id == member._id"
+                                   ng-repeat="member in pagesCtrl.project.team" ng-value="member">{{member.name}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+
+            </div>
+
         </div>
         <md-list>
 
-
-            <!--filter:{assignedTo:pagesCtrl.assignFilter}-->
             <md-list-item layout="row"
-                          ng-repeat="page in pagesCtrl.pages  | filter:{completed:false} | filter:pagesCtrl.AssignedFilter:pagesCtrl.assignFilter"
+                          ng-repeat="page in pagesCtrl.pages | filter:{completed:false}  | filter:pagesCtrl.AssignedFilter"
                           ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>
@@ -28,7 +38,8 @@
         <md-divider layout-padding layout-margin md-inset>Archived</md-divider>
 
         <md-list>
-            <md-list-item layout="row" ng-repeat="page in pagesCtrl.pages  | filter:{completed:true}"
+            <md-list-item layout="row"
+                          ng-repeat="page in pagesCtrl.pages  | filter:{completed:true} | filter:pagesCtrl.AssignedFilter"
                           ng-click="pagesCtrl.goToPage(page._id)"
                           class="md-whiteframe-z2 project-item" md-ink-ripple>
                 <md-title layout-padding="">{{page.title}}</md-title>

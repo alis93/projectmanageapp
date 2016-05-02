@@ -33,15 +33,5 @@ angular.module("projectManager")
                 return data.data;
             });
         };
-
-        o.totalTasksByUser = function (projectID) {
-            return $http.get('project/' + projectID + '/aggregate/totalHoursByUser', {
-                headers: {Authorization: 'Bearer ' + auth.getToken()}
-            }).then(function (data) {
-                return data.data;
-            });
-        };
-
-
         return o;
     }]);

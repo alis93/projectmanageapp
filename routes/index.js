@@ -533,6 +533,7 @@ router.route('/projects/:project_id/pages/:page_id')
     });
 
 router.put('/projects/:project_id/pages/:page_id/complete', auth, function (req, res) {
+
     req.page.completed = req.body.isComplete;
     req.page.save(function (err, page) {
         if (err) {
@@ -587,6 +588,9 @@ router.put('/projects/:project_id/pages/:page_id/completionDetails', auth, funct
     req.page.dateCompleted = req.body.date;
     req.page.hoursToComplete = req.body.hours;
     req.page.completedBy = req.payload._id;
+
+
+    console.log('the page', req.page);
 
     req.page.save(function (err, page) {
         if (err) {
@@ -907,6 +911,13 @@ router.get('/user/:userID/aggregate/AssignedTasksByDate', auth, function (req, r
 
 router.get('/project/:project_id/aggregate/totalHoursByUser', auth, function (req, res) {
 
+
+    //var g = req.project.pages.map(function(item){
+    //    if(item.completed){
+    //        console.log('date',item.dateCompleted);
+    //    }
+    //});
+
     Page.aggregate([
         {
             $match: {
@@ -925,17 +936,28 @@ router.get('/project/:project_id/aggregate/totalHoursByUser', auth, function (re
         },
         {
             $group: {
-                _id: "$completedBy",
-                count: {$sum: "$hoursToComplete"},
-                date: {
-                    $addToSet: {
-                        month: {$month: "$dateCompleted"},
-                        day: {$dayOfMonth: "$dateCompleted"},
-                        year: {$year: "$dateCompleted"}
+                _id: {
+                    month: {$month: "$dateCompleted"},
+                    day: {$dayOfMonth: "$dateCompleted"},
+                    year: {$year: "$dateCompleted"},
+                    user: '$completedBy'
+                },
+                count: {$sum: "$hoursToComplete"}
+            }
+        },
+        {
+            $group: {
+                _id: '$_id.user',
+                info: {
+                    $push: {
+                        date: {
+                            month: '$_id.month',
+                            day: '$_id.day',
+                            year: '$_id.year'
+                        },
+                        count: '$count'
                     }
                 }
-
-
             }
         }], function (err, result) {
         if (err) {
@@ -947,8 +969,48 @@ router.get('/project/:project_id/aggregate/totalHoursByUser', auth, function (re
 });
 
 //
-//{
-//    month: {$month: "$dateCompleted"},
-//    day: {$dayOfMonth: "$dateCompleted"},
-//    year: {$year: "$dateCompleted"}
-//}
+//router.get('/project/:project_id/aggregate/totalHoursByUser', auth, function (req, res) {
+//
+//
+//    //var g = req.project.pages.map(function(item){
+//    //    if(item.completed){
+//    //        console.log('date',item.dateCompleted);
+//    //    }
+//    //});
+//
+//    Page.aggregate([
+//        {
+//            $match: {
+//                project: req.project._id,
+//                completed: true,
+//                hoursToComplete: {$exists: true},
+//                dateCompleted: {$exists: true}
+//            }},
+//        {
+//            $project: {
+//                completedBy: {$ifNull: ["$completedBy", 'unknown']},
+//                hoursToComplete: '$hoursToComplete',
+//                dateCompleted: '$dateCompleted'
+//            }},
+//        {
+//            $group: {
+//                _id: '$completedBy',
+//                info: {
+//                    $push: {
+//                        date: {
+//                            month: {$month: "$dateCompleted"},
+//                            day: {$dayOfMonth: "$dateCompleted"},
+//                            year: {$year: "$dateCompleted"}
+//                        },
+//                        count: {$sum: "$hoursToComplete"}
+//                    }
+//                }
+//            }
+//        }], function (err, result) {
+//        if (err) {
+//            console.log(err);
+//        }
+//        console.log("completedStuff", result);
+//        res.json(result);
+//    });
+//});

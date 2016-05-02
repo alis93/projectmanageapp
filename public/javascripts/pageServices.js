@@ -40,12 +40,20 @@ angular.module("projectManager")
         o.setComplete = function (projectId, pageId, isComplete) {
             return $http.put('/projects/' + projectId + '/pages/' + pageId + '/complete', isComplete, {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.log(err);
             });
         };
 
         o.setCompletionDetails = function (projectId, pageId, completionData) {
             return $http.put('/projects/' + projectId + '/pages/' + pageId + '/completionDetails', completionData, {
                 headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).then(function (data) {
+                return data.data;
+            }, function (err) {
+                console.log(err);
             });
         };
 

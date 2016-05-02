@@ -3,7 +3,6 @@
 
     <div layout-margin>
         <highchart config="reportCtrl.completedByDateConfig"></highchart>
-        <highchart config="reportCtrl.totalTasksByUser"></highchart>
     </div>
 
 
@@ -16,26 +15,29 @@
                 </md-option>
             </md-select>
         </md-input-container>
+
     </div>
 
 
-    <table style="width:100%">
-        <tr>
+    <div class=" report-table md-whiteframe-z2">
+        <table>
+            <tr>
             <th>Task name</th>
             <th>Date completed</th>
-            <th>Hours to complete</th>
+                <th>Hours Taken to complete</th>
         </tr>
-        <tr ng-repeat="task in reportCtrl.tasks | filter:reportCtrl.selectedUser._id">
-            <td>{{task.title}}</td>
-            <td>{{task.dateCompleted | date : "dd.MM.yy"}}</td>
-            <td>{{task.hoursToComplete}}</td>
+            <tr ng-repeat="task in reportCtrl.tasks | filter:{completedBy:reportCtrl.selectedUser._id} | filter:!task.completed | orderBy:reportCtrl.orderByDate ">
+                <td>{{task.title}}</td>
+                <td>{{task.dateCompleted | date : "dd.MM.yy"}}</td>
+                <td>{{task.hoursToComplete}}</td>
         </tr>
-        <tr>
+            <tr>
             <td></td>
             <td id="total-hours-heading">Total Hours</td>
-            <td id="total-hours-val">{{reportCtrl.totalHours}}</td>
+                <td id="total-hours-val">{{reportCtrl.getTotalHours()}}</td>
         </tr>
     </table>
+    </div>
 
 
 </div>
