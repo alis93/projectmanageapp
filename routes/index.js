@@ -444,6 +444,7 @@ router.route('/projects/:project_id/pages')
 
             req.project.save(function(err){
                 if(err){return next(err);}
+                console.log(page);
                 res.json(page);
             });
         });
