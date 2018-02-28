@@ -11,3 +11,5 @@ Uses express and Nodejs for backend.
 Authentication uses JWT and passportJS.
 
 Includes use of other libraries for features such as graphing and text editing. 
+
+The backend routes really need to be modularised and split into database, api and service layers!
